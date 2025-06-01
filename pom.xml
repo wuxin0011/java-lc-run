@@ -39,7 +39,7 @@
   <scm>
     <connection>scm:git:git://github.com/wuxin0011/java-lc-run.git</connection>
     <developerConnection>scm:git:ssh://github.com:wuxin0011/java-lc-run.git</developerConnection>
-    <url>http://github.com/wuxin0011/java-lc-run/tree/master</url>
+    <url>http://github.com/wuxin0011/java-lc-run/tree/main</url>
   </scm>
 
   <!-- 发布地址 -->
