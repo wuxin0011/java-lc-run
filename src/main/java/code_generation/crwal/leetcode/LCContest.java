@@ -675,6 +675,7 @@ public class LCContest implements Contest {
      * @param questions list of contest questions
      */
     public void createReadme(int NO, String dir, List<Question> questions) {
+        if(!LocalConfig.CREATE_README_FILE) return;
         StringBuilder content = new StringBuilder();
         boolean isBiWeekly = dir.contains(BI_WEEK_DRI);
         String parentDir = new File(new File(dir).getParent()).getParent();

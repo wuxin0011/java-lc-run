@@ -1,6 +1,5 @@
 package code_generation.config;
 
-import code_generation.crwal.request.Request;
 import code_generation.utils.IoUtil;
 import code_generation.utils.StringUtils;
 
@@ -64,6 +63,12 @@ public class LocalConfig {
      * If not initialized, it remains null, indicating no configuration data is available.
      */
     public static Properties PROPERTIES = null ;
+    /**
+     * Indicates whether a README file should be created.
+     * If set to true, the system will generate a README file during the appropriate process.
+     * If set to false, the creation of the README file will be skipped.
+     */
+    public static boolean CREATE_README_FILE = true ;
     static {
         InputStream resourceAsStream = null;
         try {
@@ -74,16 +79,19 @@ public class LocalConfig {
                 PROPERTIES.load(resourceAsStream);
 
                 // merge
-                if(!(StringUtils.isEmpty(PROPERTIES.getProperty("root_dir")) || Objects.equals(PROPERTIES.getProperty("root_dir"), "null"))) {
+                if(valueIsNotEmpty(PROPERTIES, "root_dir")) {
                     ROOT_DIRS = PROPERTIES.getProperty("root_dir").replace("[","").replace("]","").split(",");
                 }
 
-                if(!(StringUtils.isEmpty(PROPERTIES.getProperty("username")) || Objects.equals(PROPERTIES.getProperty("username"), "null"))) {
+                if(valueIsNotEmpty(PROPERTIES, "username")) {
                     USER_NAME = PROPERTIES.getProperty("username");
                 }
 
-                if(!(StringUtils.isEmpty(PROPERTIES.getProperty("request_config")) || Objects.equals(PROPERTIES.getProperty("request_config"), "null"))) {
+                if(valueIsNotEmpty(PROPERTIES, "request_config")) {
                     REQUEST_CONFIG_DIR = PROPERTIES.getProperty("request_config");
+                }
+                if(valueIsNotEmpty(PROPERTIES, "create_contest_readme")) {
+                    CREATE_README_FILE = Boolean.getBoolean(PROPERTIES.getProperty("create_contest_readme"));
                 }
             }
         }catch (IOException ignore){
@@ -94,6 +102,20 @@ public class LocalConfig {
         if(!IoUtil.isAbsolutePath(REQUEST_CONFIG_DIR)) {
             REQUEST_CONFIG_DIR = IoUtil.getWorkDir() + File.separator + REQUEST_CONFIG_DIR + File.separator + "request_config" + File.separator;
         }
+    }
+
+
+    /**
+     * Checks if the specified key in the given Properties object is null or represents a null value.
+     * A key is considered null if its value is empty, contains only whitespace, or is the string "null".
+     *
+     * @param properties the Properties object to check for the key
+     * @param Key the key whose value needs to be checked
+     * @return true if the key is null or represents a null value, false otherwise
+     */
+    public static boolean valueIsNotEmpty(Properties properties,String Key) {
+        String value = properties.getProperty(Key);
+        return !StringUtils.isEmpty(value) && !Objects.equals(value, "null");
     }
 
 }

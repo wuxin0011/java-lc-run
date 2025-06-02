@@ -28,6 +28,23 @@ if you
 You can download the usage example [here🚀](https://github.com/wuxin0011/java-lc-run-exmpale)
 You can also use Maven to configure the configuration
 
+
+# USE
+
+## custom  config
+
+if you want to custom some config
+```properties
+root_dir=[src,main,java]
+# load cookie dir if is "." will load in work dir
+request_config=.
+# if get username failed , will use default username
+username=wuxin0011
+# create contest readme file
+create_contest_readme=true
+```
+place create `config.properties` file in your project resources dir
+
 ## contest
 
 
