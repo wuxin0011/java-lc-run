@@ -1,4 +1,4 @@
-
+[English](./readme.md) | [简体中文](./readme-zh.md)
 
 
 # About
@@ -10,7 +10,7 @@ This is a small tool that automatically crawls the weekly competition, which can
 <dependency>
     <groupId>io.github.wuxin0011</groupId>
     <artifactId>java-lc-run</artifactId>
-    <version>0.0.2-beta</version>
+    <version>0.0.3-beta</version>
 </dependency>
 ```
 [last version](https://central.sonatype.com/artifact/io.github.wuxin0011/java-lc-run)
@@ -24,8 +24,7 @@ This is a small tool that automatically crawls the weekly competition, which can
 First launch Please configure the cookies of your leetcode website !
 if you 
 
-
-You can download the usage example [here🚀](https://github.com/wuxin0011/java-lc-run-exmpale)
+You can download the usage example [here🚀](https://github.com/wuxin0011/java-lc-run-example)
 You can also use Maven to configure the configuration
 
 
