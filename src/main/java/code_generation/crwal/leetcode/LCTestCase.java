@@ -11,11 +11,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @author: wuxin0011
- * @Description:
+ * A utility class for parsing test cases from various formats, particularly from coding challenge websites.
+ * This class provides methods to extract input/output examples and other relevant information from HTML or JSON content.
+ * @author wuxin0011
+ * @since 1.0
  */
 public class LCTestCase implements TestCase {
 
+    // Constants for flag strings used in parsing
     public static final String input_flag = StringUtils.Input;
     public static final String output_flag = StringUtils.Output;
     public static final String explain_flag = StringUtils.Explanation;
@@ -32,9 +35,18 @@ public class LCTestCase implements TestCase {
     public static final String OtherFlag = ":";
     public static final String interFlag = ",";
 
+    /**
+     * Default constructor for LCTestCase
+     */
     public LCTestCase() {
     }
 
+
+    /**
+     * Parses contest content to extract test cases
+     * @param input The input string containing the contest content
+     * @return List of parsed test cases as strings
+     */
     public List<String> parseContest(String input) {
         input = TestCaseUtil.getTagContent(input, "class=\"question-content source-content\"", 0, "<div", "</div");
         input = input.replace("&quot;", "");
@@ -47,7 +59,12 @@ public class LCTestCase implements TestCase {
         StringUtils.handlerResult(ans);
         return ans;
     }
-
+    /**
+     * Finds the position of output flags in a string
+     * @param next The string to search
+     * @param flags The flags to search for
+     * @return The index of the first found flag, or -1 if none found
+     */
     public static int findOutput(String next, String... flags) {
         int idx = -1;
 
@@ -60,7 +77,11 @@ public class LCTestCase implements TestCase {
 
         return idx;
     }
-
+    /**
+     * Handles parsing of older output formats
+     * @param input The input string to parse
+     * @param ans The list to store parsed results
+     */
     public static void handlerOldOutPut(String input, List<String> ans) {
         List<Integer> input_pos = StringUtils.kmpSearchList(input, "Input");
         List<Integer> output_pos = StringUtils.kmpSearchList(input, "Output");
@@ -85,7 +106,11 @@ public class LCTestCase implements TestCase {
 
         }
     }
-
+    /**
+     * Parses default test case format
+     * @param input The input string to parse
+     * @return List of parsed test cases
+     */
     public List<String> parseDefault(String input) {
         input = input.replace("&quot;", "");
         input = input.replace("<em>", "").replace("</em>", "");
@@ -115,7 +140,11 @@ public class LCTestCase implements TestCase {
             }
         }
     }
-
+    /**
+     * Parses input test cases from a string
+     * @param s The string containing input test cases
+     * @param ans The list to store parsed results
+     */
     public static void parseInputTestCase(String s, List<String> ans) {
         s = StringUtils.replaceIgnoreContent(s);
         s = s.replace("\\n", "");
@@ -166,7 +195,11 @@ public class LCTestCase implements TestCase {
         }
 
     }
-
+    /**
+     * Parses output test cases from a string
+     * @param s The string containing output test cases
+     * @param ans The list to store parsed results
+     */
     public static void parseOutputTestCase(String s, List<String> ans) {
         s = StringUtils.replaceIgnoreContent(s);
         if (!StringUtils.isEmpty(s)) {
@@ -176,11 +209,20 @@ public class LCTestCase implements TestCase {
         ans.add(s);
         ans.add("\n");
     }
-
+    /**
+     * Matches and processes example strings
+     * @param input The input string to process
+     * @return The processed string
+     */
     public static String matchExample(String input) {
         return StringUtils.replaceIgnoreContent(input);
     }
-
+    /**
+     * Matches and processes all examples in a string
+     * @param input The input string to process
+     * @param pattern The pattern to match (null for default)
+     * @param ans The list to store parsed results
+     */
     public static void matchExampleAll(String input, String pattern, List<String> ans) {
         if (StringUtils.isEmpty(pattern)) {
             pattern = "<span.*?>(.*?)</span>";
@@ -195,7 +237,11 @@ public class LCTestCase implements TestCase {
         }
 
     }
-
+    /**
+     * Handles new 2025 format for both input and output
+     * @param jsonStr The JSON string to parse
+     * @return List of parsed test cases with inputs and outputs
+     */
     public static List<String> _2025NewHandlerInputAndOutput(String jsonStr) {
         List<String> inputs = _2025NewHandlerInput(jsonStr);
         List<String> outputs = _2025NewHandlerOutPut(jsonStr);
@@ -238,7 +284,11 @@ public class LCTestCase implements TestCase {
             return result;
         }
     }
-
+    /**
+     * Handles new 2025 format for input only
+     * @param jsonStr The JSON string to parse
+     * @return List of parsed input test cases
+     */
     public static List<String> _2025NewHandlerInput(String jsonStr) {
         String examples = null;
         List<String> ans = new ArrayList<>();
@@ -318,7 +368,11 @@ public class LCTestCase implements TestCase {
             }
         }
     }
-
+    /**
+     * Handles new 2025 format for output only
+     * @param jsonStr The JSON string to parse
+     * @return List of parsed output test cases
+     */
     public static List<String> _2025NewHandlerOutPut(String jsonStr) {
         int index = StringUtils.kmpSearch(jsonStr, input_flag);
         if (index != -1) {
@@ -328,7 +382,15 @@ public class LCTestCase implements TestCase {
             return parseOutput(jsonStr.substring(index), zh_input_flag, zh_output_flag, zh_explain_flag, zh_tips_flag);
         }
     }
-
+    /**
+     * Parses output from a string using specified flags
+     * @param inputstring The input string to parse
+     * @param input_flag The flag marking input sections
+     * @param output_flag The flag marking output sections
+     * @param explain_flag The flag marking explanation sections
+     * @param tips_flag The flag marking tips sections
+     * @return List of parsed outputs
+     */
     public static List<String> parseOutput(String inputstring, String input_flag, String output_flag, String explain_flag, String tips_flag) {
         List<String> outputs = new ArrayList<>();
         List<Integer> startIds = StringUtils.kmpSearchList(inputstring, pre_start);

@@ -10,76 +10,93 @@ import java.util.Objects;
 import java.util.Scanner;
 
 /**
+ * Implementation of {@link LCCustom} for daily LeetCode problem processing.
+ * Handles generation of daily problem templates and file organization.
  * @author: wuxin0011
- * @Description: LeetCode 每日一题
+ * @since 1.0
  */
 public class LCEveryDay extends LCCustom {
 
+    /** Singleton instance of LCEveryDay */
+    public static LCEveryDay everyDay = new LCEveryDay();
 
-    public static LCEveryDay everyDay  = new LCEveryDay();
-
-
+    /**
+     * Starts daily problem processing.
+     *
+     * @param c      reference class for path resolution
+     * @param input  whether to prompt for input (unused in this implementation)
+     * @throws NullPointerException if class parameter is null
+     */
     @Override
     public void start(Class<?> c, boolean input) {
-        Objects.requireNonNull(c,"class not allow NULL");
+        Objects.requireNonNull(c, "Class cannot be null");
         this.aClass = c;
         this.classTemplate = new ClassTemplate();
+
+        // Get today's problem
         String questionOfToday = BuildUrl.questionOfToday();
         this.frontendQuestionId = StringUtils.jsonStrGetValueByKey(questionOfToday, "frontendQuestionId");
         String titleSlug = StringUtils.jsonStrGetValueByKey(questionOfToday, "titleSlug");
-        System.out.printf("access today problem url : %s/%s\n", BuildUrl.LC_PROBLEM_PREFIX, titleSlug);
+
+        System.out.printf("Accessing today's problem URL: %s/%s\n", BuildUrl.LC_PROBLEM_PREFIX, titleSlug);
         createByTitleSlug(titleSlug);
     }
 
-
+    /**
+     * Custom problem processing with interactive input.
+     *
+     * @param c reference class for path resolution
+     * @throws NullPointerException if class parameter is null
+     */
     public void custom(Class<?> c) {
-        Objects.requireNonNull(c,"class not allow NULL");
+        Objects.requireNonNull(c, "Class cannot be null");
         this.aClass = c;
         this.classTemplate = new ClassTemplate();
         Scanner scanner = new Scanner(System.in);
 
         String titleSlug = "";
         do {
-            System.out.print("input a url https://leetcode.cn/problems/xxxxxx/ text and input NO exit: \n");
+            System.out.print("Input a URL (https://leetcode.cn/problems/xxxxxx/) or 'NO' to exit: \n");
             titleSlug = scanner.next();
             if ("exit".equalsIgnoreCase(titleSlug) || "NO".equalsIgnoreCase(titleSlug)) {
                 System.exit(-1);
             }
-            // 经典模式URl
+            // Handle classic theme URLs
             if (!StringUtils.isEmpty(titleSlug) && titleSlug.startsWith(BuildUrl.LC_CLASS_THEME_PREFIX)) {
                 titleSlug = titleSlug.replace(BuildUrl.LC_CLASS_THEME_PREFIX, BuildUrl.LC_PROBLEM_PREFIX);
             }
         } while (StringUtils.isEmpty(titleSlug) || !titleSlug.startsWith(BuildUrl.LC_PROBLEM_PREFIX));
+
         createByTitleSlug(titleSlug);
     }
 
-
+    /**
+     * Implements custom problem generation logic.
+     * Handles:
+     * - Directory structure creation
+     * - File naming conventions
+     * - Template generation
+     */
     @Override
     public void next() {
+        // Calculate file count and create directory structure
         int count = Math.max(ProblemEveryDayUtils.getJavaFileCount(aClass), 0);
         String dir = ProblemEveryDayUtils.createPrefix(count);
         String base = ProblemEveryDayUtils.convertDir(count);
-        String name = dir + Constant.FIlE_PREFIX + base;
-        name = name + "_" + this.frontendQuestionId;
-        // String className = name.replace(dir, "").replace("\\", "");
-        // classTemplate.buildClassName(className);
 
+        // Create file names
+        String name = dir + Constant.FILE_PREFIX + base;
+        name = name + "_" + this.frontendQuestionId;
+
+        // Build file paths
         String javaPath = ProblemEveryDayUtils.buildJavaFilePath("", name);
         String txtPath = ProblemEveryDayUtils.buildTxtFilePath(dir, name);
-        // System.out.println("name:" + name + ",txt path = " + txtPath);
 
-
-        // build txt
+        // Configure text file name in template
         classTemplate.buildTextFileName(txtPath.replace(dir, ""));
 
-
-        // System.out.println(ClassTemplate.getTemplate(classTemplate));
+        // Create and process problem info
         ProblemInfo problemInfo = new ProblemInfo(javaPath, txtPath, testCase, classTemplate, aClass);
-
-        // System.out.println(problemInfo);
         createTemplate(problemInfo);
     }
-
-
-
 }

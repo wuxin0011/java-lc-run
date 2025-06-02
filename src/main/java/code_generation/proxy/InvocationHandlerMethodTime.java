@@ -7,17 +7,33 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 /**
- * @author: wuxin0011
- * @Description:
+ * An invocation handler that measures and logs method execution time for {@link LogarithmicDevice} implementations.
+ * This class provides proxy-based timing functionality through Java's dynamic proxy mechanism.
+ * @author wuxin0011
+ * @since 1.0
  */
 public class InvocationHandlerMethodTime implements InvocationHandler {
 
+    /**
+     * The target LogarithmicDevice instance being proxied
+     */
     public LogarithmicDevice target;
 
+    /**
+     * Constructs an invocation handler for the specified target LogarithmicDevice.
+     * @param target The LogarithmicDevice instance to be proxied and timed
+     */
     public InvocationHandlerMethodTime(LogarithmicDevice target) {
         this.target = target;
     }
 
+    /**
+     * Invokes the method on the target object and measures execution time.
+     * @param proxy The proxy instance that the method was invoked on
+     * @param method The Method instance corresponding to the interface method invoked
+     * @param args An array of objects containing the method arguments
+     * @return The result of the method invocation on the target object
+     */
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) {
         Object result = null;
@@ -39,6 +55,10 @@ public class InvocationHandlerMethodTime implements InvocationHandler {
         return result;
     }
 
+    /**
+     * Creates a timing proxy for the specified LogarithmicDevice instance.
+     * @param logarithmicDevice The LogarithmicDevice instance to be timed
+     */
     public static void getRunTime(LogarithmicDevice logarithmicDevice) {
         // 创建 InvocationHandler 实例
         InvocationHandler invocationHandler = new InvocationHandlerMethodTime(logarithmicDevice);
@@ -52,6 +72,12 @@ public class InvocationHandlerMethodTime implements InvocationHandler {
         proxy.logarithmicDevice();
     }
 
+    /**
+     * Creates a timing proxy for a new instance of the specified LogarithmicDevice class.
+     * @param <T> The type of LogarithmicDevice
+     * @param c The Class object of the LogarithmicDevice implementation
+     * @throws RuntimeException if instantiation fails
+     */
     public static <T extends LogarithmicDevice> void getRunTime(Class<T> c) {
         try {
             getRunTime(c.newInstance());
@@ -59,6 +85,4 @@ public class InvocationHandlerMethodTime implements InvocationHandler {
             throw new RuntimeException(e);
         }
     }
-
-
 }

@@ -13,110 +13,195 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+
 /**
+ * Implementation of {@link Contest} for LeetCode weekly and bi-weekly contests.
+ * Handles contest problem generation, template creation, and directory management.
  * @author: wuxin0011
- * @Description:
+ * @since 1.0
  */
 public class LCContest implements Contest {
 
+    // Constants for contest types and configuration
     private static final LocalDate NOW = LocalDate.now();
 
-
+    /** Weekly contest directory identifier */
     public static final String WEEK_DRI = "weekly";
+
+    /** Bi-weekly contest directory identifier */
     public static final String BI_WEEK_DRI = "biweekly";
 
-
+    /** Weekly contest file prefix */
     public static final String WEEKLY_PREFIX = "w_";
+
+    /** Bi-weekly contest file prefix */
     public static final String BI_WEEKLY_PREFIX = "bi_";
 
-
     /**
-     * 是否创建 solution.md 文件 默认不创建
+     * Whether to create solution.md files (default: false)
      */
     public static final boolean CREATE_SOLUTION_ME = false;
 
-
     /**
-     * 创建父级目录下的 readme.md 默认创建
+     * Whether to create parent directory readme.md (default: true)
      */
     public static final boolean CREATE_READ_ME_FATHER = true;
 
-
-    /**
-     * 周赛
-     */
+    /** Preconfigured weekly contest instance */
     public static final LCContest WEEK_CONTEST = new LCContest(380, "2024-01-14 10:30:00", 4, WEEKLY_PREFIX, WEEK_DRI, 1, null);
 
-
-    /**
-     * 双周赛
-     */
+    /** Preconfigured bi-weekly contest instance */
     public static final LCContest BI_WEEK_CONTEST = new LCContest(1, "2019-06-01 22:30:00", 4, BI_WEEKLY_PREFIX, BI_WEEK_DRI, 2, null);
-
 
     private final static int[] DAYS = {0, 7, 1, 2, 3, 4, 5, 6};
 
-
+    /**
+     * originDir
+     */
     private String originDir;
+    /**
+     * lastestDateNo
+     */
+    private int lastestDateNo; // Latest contest number
+    /**
+     * lastestDate
+     */
+    private LocalDate lastestDate; // Latest contest date
 
-    private int lastestDateNo; // 最近一次比赛编号
-    private LocalDate lastestDate; // 最近一次比赛时间
-    private String dir; // 生成的目录
-    private int times; // 比赛频率
-    private int problems; // 多少个题目 默认4个
-    private String dirPrefix; // 前缀
+    /**
+     * dir
+     */
+    private String dir; // Target directory
 
-    private Class<?> aClass; // 加载到那个类目录下
+    /**
+     * times
+     */
+    private int times; // Contest frequency (weeks)
 
+    /**
+     * problems
+     */
+    private int problems; // Number of problems (default: 4)
 
+    /**
+     * dirPrefix
+     */
+    private String dirPrefix; // Directory prefix
+
+    /**
+     * aClass
+     */
+    private Class<?> aClass; // Class for path resolution
+
+    /**
+     * username
+     */
+    private String username;
+
+    /**
+     * questionList
+     */
+    private List<Question> questionList;
+
+    /**
+     * testCase
+     */
+    private String testCase;
+
+    /**
+     * code
+     */
+    private String code;
+
+    /**
+     * java file save
+     */
+    private List<String> javafiles = new ArrayList<>();
+
+    /**
+     * default template parse
+     */
+    private static final LCTemplate lcTemplate = new LCTemplate("{'value': 'java', 'text': 'Java', 'defaultCode':");
+
+    /**
+     * default case parse
+     */
+    static final LCTestCase TEST_CASE = new LCTestCase();
+
+    /**
+     * Constructs a new LCContest instance.
+     *
+     * @param no            latest contest number
+     * @param lastestDate   latest contest date (yyyy-MM-dd HH:mm:ss)
+     * @param problems      number of problems
+     * @param dirPrefix     directory prefix
+     * @param dir           base directory
+     * @param times         contest frequency in weeks
+     * @param c             reference class for path resolution
+     */
     public LCContest(int no, String lastestDate, int problems, String dirPrefix, String dir, int times, Class<?> c) {
         this.lastestDateNo = no;
         this.originDir = dir;
         this.dir = dir;
-        this.lastestDate = Objects.requireNonNull(parse(lastestDate), "date format is fail");
+        this.lastestDate = Objects.requireNonNull(parse(lastestDate), "Invalid date format");
         this.setClass(c, dir);
         this.times = Math.max(1, times);
         this.problems = problems;
         this.dirPrefix = dirPrefix.endsWith("_") ? dirPrefix : (dirPrefix + "_");
     }
 
-
     /**
-     * 可以自动调整类目录
+     * Sets the reference class and updates directory paths.
      *
-     * @param c
-     * @param _dir
+     * @param c     reference class
+     * @param _dir  base directory
      */
     public void setClass(Class<?> c, String _dir) {
         this.aClass = c == null ? LCContest.class : c;
-        this.dir = IoUtil.wrapperAbsolutePath(aClass, StringUtils.isEmpty(_dir) ? !StringUtils.isEmpty(originDir) ? originDir : dir : _dir);
+        this.dir = IoUtil.wrapperAbsolutePath(aClass,
+                StringUtils.isEmpty(_dir) ? !StringUtils.isEmpty(originDir) ? originDir : dir : _dir);
     }
 
     /**
-     * 比较场次符合要求
+     * Validates contest configuration.
+     * Currently unimplemented.
      */
     public void valid() {
-        // todo
+        //
     }
 
-
+    /**
+     * Generates the next contest problems.
+     */
     public void next() {
         valid();
         createTestProblem(getId(), getProblemDir());
     }
 
-    private String username;
-
+    /**
+     * Gets the username associated with this contest.
+     * @return current username
+     */
     public String getUsername() {
         return username;
     }
 
+    /**
+     * Sets the username for this contest.
+     * @param username LeetCode username
+     */
     public void setUsername(String username) {
         this.username = username;
     }
 
-
-    // 如果最新一次周赛获取不到 可以使用这个模板
+    /**
+     * Uses an older template format for problem generation.
+     *
+     * @param No        contest number
+     * @param maxId     maximum contest ID
+     * @param idx       problem index
+     * @param question  question data
+     */
     public void useOldTemplate(int No, int maxId, int idx, Question question) {
         if (maxId == No) {
             AtomicReference<String> tc = new AtomicReference<>("");
@@ -131,113 +216,100 @@ public class LCContest implements Contest {
         }
     }
 
-
+    /**
+     * Uses the default template for problem generation.
+     *
+     * @param idx       problem index
+     * @param question  question data
+     */
     public void useDefaultTemplate(int idx, Question question) {
         ExceptionUtils.executeWithExceptionHandling(() -> {
             createContestTemplate(idx, dir, question);
         });
     }
 
+    /**
+     * Creates test problems for a contest.
+     *
+     * @param No    contest number
+     * @param dir   target directory
+     */
     private void createTestProblem(int No, String dir) {
-
-        int maxId = getId();
-
-
         System.out.println("==========================================" + No + " start ==========================================");
         List<Question> questions = getQuestions(No);
-        if (questions.size() == 0) {
-            System.out.println("No contest !" + No);
+        if (questions.isEmpty()) {
+            System.out.println("No contest found for number: " + No);
             return;
         }
 
-        // not setting username
-        // form network get
         if (StringUtils.isEmpty(username)) {
             this.username = getUserName();
         }
 
         if (!StringUtils.isEmpty(username)) {
-            System.out.println("\n welcome coming " + CustomColor.error(username) + " \n");
+            System.out.println("\nWelcome " + CustomColor.error(username) + " \n");
         }
-        System.out.println("fetch problems urls success ! start parse problems ");
+
+        System.out.println("Fetching problem URLs...");
         for (int i = 0; i < questions.size(); i++) {
             Question question = questions.get(i);
-            if (question == null) {
-                continue;
-            }
+            if (question == null) continue;
+
             String tempTitle = (StringUtils.isEmpty(question.getTitle()) ? question.getTitle_slug() : question.getTitle());
-            System.out.println("\nstart parse question :  " + CustomColor.pink(tempTitle) + " , credit: " + (StringUtils.isEmpty(question.getCredit()) ? "unknown" : question.getCredit()));
-            System.out.println("access url : " + (StringUtils.isEmpty(question.getUrl()) ? "unknown" : question.getUrl()));
-            final int idx = i;
+            System.out.println("\nParsing question: " + CustomColor.pink(tempTitle) +
+                    ", Credit: " + (StringUtils.isEmpty(question.getCredit()) ? "unknown" : question.getCredit()));
+            System.out.println("URL: " + (StringUtils.isEmpty(question.getUrl()) ? "unknown" : question.getUrl()));
 
             try {
-                createContestTemplate(idx, dir, question);
+                createContestTemplate(i, dir, question);
             } catch (Exception e) {
                 e.printStackTrace();
-                // if error use default template
-                System.out.println("try use default contest template ");
+                System.out.println("Using fallback template...");
                 AtomicReference<String> tc = new AtomicReference<>("");
+                int finalI = i;
                 ExceptionUtils.executeWithExceptionHandling(() -> {
-                    tc.set(getTestCase(questions.get(idx).getUrl()));
+                    tc.set(getTestCase(questions.get(finalI).getUrl()));
                 });
                 ExceptionUtils.executeWithExceptionHandling(() -> {
-                    Problem.create(idx, dir, tc.get(), "");
+                    Problem.create(finalI, dir, tc.get(), "");
                 });
             }
-
-            // 是否取用最新版不使用template
-            // useOldTemplate(maxId,No,idx,question);
-
 
             ExceptionUtils.sleep(Math.min(1, (int) (Math.random() * 5)));
         }
-        // Problem.createProblems(problems, dir);
+
         System.out.println("==========================================" + No + " end ==========================================");
-
-
         createReadme(No, dir, questions);
     }
 
-    private static final LCTemplate lcTemplate = new LCTemplate("{'value': 'java', 'text': 'Java', 'defaultCode':");
-
+    /**
+     * Creates contest problem templates.
+     *
+     * @param curId     problem index
+     * @param dir       target directory
+     * @param question  question data
+     */
     public void createContestTemplate(int curId, String dir, Question question) {
-        if (question == null) {
-            throw new NullPointerException();
-        }
+        if (question == null) throw new NullPointerException("Question cannot be null");
+
         ClassTemplate classTemplate = new ClassTemplate();
         String titleSlug = question.getTitle_slug();
-        String info = "";
-
-        // test case
-        List<String> strings = null;
         String testCase = null;
 
-
-        // important info
-        // info = parseScriptCodeInfo(contestHtml);
-        // if (StringUtils.isEmpty(info)) {
-        //     throw new RuntimeException("parse error");
-        // }
-        // 旧版 这个其实也可以 但是没有返回值
-        // String method = getMethod(info);
-        // String methodName = StringUtils.getMethodName(method);
-
-        // 新方式处理 有返回值
-        ParseCodeInfo parseCodeInfo = null;
-        //使用新的接口 https://leetcode.cn/contest/weekly-contest-398/
-        parseCodeInfo = this.parseCodeTemplate(question);
+        // Parse code info and test cases
+        ParseCodeInfo parseCodeInfo = this.parseCodeTemplate(question);
         if (parseCodeInfo != null) {
             List<String> parseResult = LCTestCase._2025NewHandlerInputAndOutput(parseCodeInfo.getOrigin());
             if (!parseResult.isEmpty()) {
                 StringBuilder sb = new StringBuilder();
-
-                for(String s : parseResult) {
-                    sb.append(StringUtils.isEmpty(s) ? "" : s);
-                }
-
+                for(String s : parseResult) sb.append(StringUtils.isEmpty(s) ? "" : s);
                 testCase = sb.toString();
             } else {
-                testCase = TestCaseUtil.testCaseToString(TEST_CASE.parseContest(StringUtils.jsonStrGetValueByKey(parseCodeInfo.getOrigin(), "translatedContent")));
+                testCase = TestCaseUtil.testCaseToString(
+                        TEST_CASE.parseContest(
+                                StringUtils.jsonStrGetValueByKey(parseCodeInfo.getOrigin(), "translatedContent")
+                        )
+                );
             }
         } else {
             String contestHtml = BuildUrl.getContestQuestionPage(question.getUrl());
@@ -246,79 +318,84 @@ public class LCContest implements Contest {
         }
 
         if (parseCodeInfo == null) {
-            throw new RuntimeException("place check your cookie ! maybe already expire " +  BuildUrl.request.getConfigPath());
+            throw new RuntimeException("Authentication failed. Check your cookie at: " + BuildUrl.request.getConfigPath());
         }
 
-
+        // Configure class template
         String method = parseCodeInfo.getMethod();
         String methodName = parseCodeInfo.getMethodName();
-        String title = question.title;
-        if (StringUtils.isEmpty(title)) {
-            title = getTitle(info);
-        }
-        if (StringUtils.isEmpty(title)) {
-            title = titleSlug;
-        }
+        String title = StringUtils.isEmpty(question.title) ? titleSlug : question.title;
         question.buildTitle(title);
 
-        // title
-        classTemplate.buildTitle(title).buildCodeInfo(parseCodeInfo);
-
-
-        String className = Problem.createDir(curId, true);
-
-//        如果使用旧版本dir方式
-//        String prefix = Problem.createDir(curId, true, Problem.createDir(curId, false, dir));
-//        String javaFile = prefix + ".java";
-//        String txtFile = prefix + ".txt";
-
-        String javaFile = dir + className + ".java";
-//        String txtFile = dir  + "\\__test_case__\\"+ className + ".txt";
-        String txtFile = dir  + className + ".txt";
-
-        javafiles.add(javaFile);
-
-        String packageInfo = ReflectUtils.getPackageInfo(javaFile);
-
-
-        classTemplate.buildIsNeedMod(StringUtils.isNeedMOD(info))
+        classTemplate.buildTitle(title)
+                .buildCodeInfo(parseCodeInfo)
+                .buildIsNeedMod(StringUtils.isNeedMOD(""))
                 .buildUrl(question.getUrl())
                 .buildMethod(method)
                 .buildAuthor(this.username)
                 .buildMethodName(methodName)
-                .buildPackageInfo(packageInfo)
-                // .buildClassName(className)
-                // 如果使用旧版本dir方式
-                .buildTextFileName(className)
-//                .buildTextFileName("__test_case__\\" + className)
+                .buildTextFileName(Problem.createDir(curId, true))
                 .buildTitle(question.getTitle());
 
+        // Create files
+        String className = Problem.createDir(curId, true);
+        String javaFile = dir + className + ".java";
+        String txtFile = dir + className + ".txt";
+        javafiles.add(javaFile);
+
+        String packageInfo = ReflectUtils.getPackageInfo(javaFile);
+        classTemplate.buildPackageInfo(packageInfo);
 
         Problem.create(new ProblemInfo(javaFile, txtFile, "", testCase, classTemplate, aClass));
     }
 
+    /**
+     * Gets test cases for a problem URL.
+     *
+     * @param s problem URL
+     * @return test case string
+     */
     private static String getTestCase(String s) {
         String contestHtml = BuildUrl.getContestQuestionPage(s);
         List<String> strings = TEST_CASE.parseContest(contestHtml);
         return TestCaseUtil.testCaseToString(strings);
     }
 
-
+    /**
+     * Wraps directory number for grouping.
+     *
+     * @param dirNo directory number
+     * @return wrapped directory string
+     */
     public static String wrapper(int dirNo) {
         dirNo = dirNo / 100 * 100;
         return dirNo == 0 ? "000" : String.valueOf(dirNo);
     }
 
-
+    /**
+     * Gets the wrapper directory path.
+     *
+     * @return wrapper directory path
+     */
     public String getWrapperDir() {
         return String.format("%s%s%s%s", dir, File.separator, dirPrefix, wrapper(this.getId()));
     }
 
+    /**
+     * Gets the problem directory path.
+     *
+     * @return problem directory path
+     */
     public String getProblemDir() {
         return String.format("%s%s%s%s%s", getWrapperDir(), File.separator, dirPrefix, this.getId(), File.separator);
     }
 
-
+    /**
+     * Parses a date string into LocalDate.
+     *
+     * @param text date string (yyyy-MM-dd HH:mm:ss)
+     * @return parsed LocalDate or null if invalid
+     */
     public LocalDate parse(String text) {
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -329,13 +406,17 @@ public class LCContest implements Contest {
         }
     }
 
-
+    /**
+     * Interactive method to create contest with user input.
+     *
+     * @param aClass reference class for path resolution
+     */
     public void createNo(Class<?> aClass) {
         this.setClass(aClass, null);
         int NO = Integer.MAX_VALUE;
         Scanner sc = new Scanner(System.in);
         while (true) {
-            System.out.print("place input a valid contest number , input NO break : ");
+            System.out.print("Please input a valid contest number, or 'NO' to break: ");
             try {
                 String next = sc.next();
                 if ("NO".equalsIgnoreCase(next)) {
@@ -353,11 +434,10 @@ public class LCContest implements Contest {
         createNo(NO);
     }
 
-
     /**
-     * 自定义生成
+     * Creates contest with specified number.
      *
-     * @param NO 周赛序号
+     * @param NO contest number
      */
     public void createNo(int NO) {
         if (NO == Integer.MAX_VALUE) {
@@ -365,7 +445,7 @@ public class LCContest implements Contest {
         }
         int maxId = getId();
         if (NO > maxId || NO < 0) {
-            throw new RuntimeException("max NO = " + maxId + ",you input No = " + NO);
+            throw new RuntimeException("Max NO = " + maxId + ", you input No = " + NO);
         }
         StringBuilder sb = new StringBuilder();
         sb.append(dir);
@@ -380,7 +460,6 @@ public class LCContest implements Contest {
         createTestProblem(NO, wrapperDir);
     }
 
-
     @Override
     public int getId() {
         int weeksBetween = (int) (ChronoUnit.WEEKS.between(lastestDate, NOW) / times);
@@ -394,6 +473,12 @@ public class LCContest implements Contest {
         return questions.stream().map(Question::getUrl).collect(Collectors.toList());
     }
 
+    /**
+     * Gets questions for a contest.
+     *
+     * @param id contest ID
+     * @return list of questions
+     */
     public List<Question> getQuestions(int id) {
         String JSONStr = "";
         String apiUrl = "";
@@ -404,13 +489,10 @@ public class LCContest implements Contest {
             JSONStr = BuildUrl.getBiWeeklyContestUrls(String.valueOf(id));
             apiUrl = String.format(BuildUrl.QuestionBiWeeklyUrlsPattern, id);
         } else {
-            throw new RuntimeException("NO support !" + this.dirPrefix + " contest ~~");
+            throw new RuntimeException("Contest type not supported: " + this.dirPrefix);
         }
         return Question.getContestQuestion(JSONStr, apiUrl);
     }
-
-
-    static final LCTestCase TEST_CASE = new LCTestCase();
 
     @Override
     public String parseTestCase(String input) {
@@ -418,53 +500,61 @@ public class LCContest implements Contest {
         return this.testCase;
     }
 
-
+    /**
+     * Parses code template from question.
+     *
+     * @param question question data
+     * @return parsed code info
+     */
     public ParseCodeInfo parseCodeTemplate(Question question) {
         String info = BuildUrl.queryNewContestQuestion(question.getUrl());
         if (StringUtils.kmpSearch(info, "authenticated") != -1) {
-            throw new RuntimeException("authenticated access ,place check your cookie in dir " + BuildUrl.request.getConfigPath());
+            throw new RuntimeException("Authenticated access required. Check your cookie at: " + BuildUrl.request.getConfigPath());
         }
         String p = "\"lang\":\"Java\",\"langSlug\":\"java\"";
         return lcTemplate.parseCodeTemplate(info, p, true);
     }
 
-
     @Override
     public ParseCodeInfo parseCodeTemplate(String contestHtml) {
-        // important info
         String info = parseScriptCodeInfo(contestHtml);
         if (StringUtils.isEmpty(info)) {
             return null;
         }
-        // 新方式处理 有返回值
         return lcTemplate.parseCodeTemplate(info);
     }
 
-
-    private String testCase;
-    private String code;
-
     @Override
     public void generatorTemplate() {
-
+        // Implementation currently empty
     }
 
-
-
-
-
-    private List<Question> questionList;
-
-
+    /**
+     * Checks if prefix indicates weekly contest.
+     *
+     * @param prefix directory prefix
+     * @return true if weekly contest
+     */
     public static boolean isWeekContest(String prefix) {
         return prefix != null && prefix.equals(WEEKLY_PREFIX);
     }
 
+    /**
+     * Checks if prefix indicates bi-weekly contest.
+     *
+     * @param prefix directory prefix
+     * @return true if bi-weekly contest
+     */
     public static boolean isBiWeekContest(String prefix) {
         return prefix != null && prefix.equals(BI_WEEKLY_PREFIX);
     }
 
-
+    /**
+     * Parses script code info from HTML.
+     *
+     * @param input HTML content
+     * @return extracted script data
+     */
     @SuppressWarnings("all")
     public static String parseScriptCodeInfo(String input) {
         int i = StringUtils.kmpSearch(input, "var pageData");
@@ -480,6 +570,12 @@ public class LCContest implements Contest {
         return input;
     }
 
+    /**
+     * Gets title from input string.
+     *
+     * @param input input string
+     * @return extracted title
+     */
     @SuppressWarnings("all")
     public static String getTitle(String input) {
         final String key = "questionTitle:";
@@ -498,101 +594,117 @@ public class LCContest implements Contest {
         return title;
     }
 
+    /**
+     * Gets method from input string.
+     *
+     * @param input input string
+     * @return extracted method
+     */
     @SuppressWarnings("all")
     public static String getMethod(String input) {
         final String t = "{'value': 'java', 'text': 'Java', 'defaultCode':";
         return StringUtils.getMethod(input,t);
     }
 
+    /**
+     * Gets current username from LeetCode.
+     *
+     * @return username or empty string if not found
+     */
     public static String getUserName() {
         final String key = "username";
-        // String key = "realName";
-        // String key = "userSlug";
         String userStatusInfo = BuildUrl.userStatus();
-        // System.out.println(userStatus);
         return StringUtils.jsonStrGetValueByKey(userStatusInfo, key);
-
     }
 
-
+    /**
+     * Main method showing next contest numbers.
+     */
     public static void main(String[] args) {
-        System.out.println("WEEK_CONTEST Next is: " + WEEK_CONTEST.getId());
-        System.out.println("BI_WEEK_CONTEST Next is :" + BI_WEEK_CONTEST.getId());
+        System.out.println("Next WEEK_CONTEST: " + WEEK_CONTEST.getId());
+        System.out.println("Next BI_WEEK_CONTEST: " + BI_WEEK_CONTEST.getId());
     }
 
+    /**
+     * Automatically creates next contest based on current time.
+     *
+     * @param aClass reference class for path resolution
+     */
     public static void autoCreateNext(Class<?> aClass) {
-        Objects.requireNonNull(aClass,"class not allow null");
+        Objects.requireNonNull(aClass,"Class cannot be null");
         Calendar calendar = Calendar.getInstance();
         int today = calendar.get(Calendar.DAY_OF_WEEK);
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
         if (hour >= 10 && hour <= 12 && DAYS[today] == 7) {
             if (minute >= 30) {
-                System.out.println("weekly contest start !");
-                LCContest.WEEK_CONTEST.setClass(aClass, null);
-                LCContest.WEEK_CONTEST.next();
+                System.out.println("Weekly contest starting!");
+                WEEK_CONTEST.setClass(aClass, null);
+                WEEK_CONTEST.next();
             } else {
                 continueRun(minute, aClass);
             }
         } else if (hour >= 22 && DAYS[today] == 6) {
             if (minute >= 30) {
-                System.out.println("biweekly contest start !");
-                LCContest.BI_WEEK_CONTEST.setClass(aClass, null);
-                LCContest.BI_WEEK_CONTEST.next();
+                System.out.println("Bi-weekly contest starting!");
+                BI_WEEK_CONTEST.setClass(aClass, null);
+                BI_WEEK_CONTEST.next();
             } else {
                 continueRun(minute, aClass);
             }
         } else {
-            System.out.println("Not contest will start !");
+            System.out.println("No contests scheduled to start now.");
         }
     }
 
-
+    /**
+     * Continues waiting for contest start time.
+     *
+     * @param minute current minute
+     * @param aClass reference class
+     */
     public static void continueRun(int minute, Class<?> aClass) {
         int rest = 30 - minute;
-        System.out.println("contest rest " + (rest) + " min will start ~");
+        System.out.println("Contest starts in " + rest + " minutes...");
         try {
-            // sleep 1 min
             Thread.sleep(1000L * 60);
         } catch (InterruptedException ignored) {
-
         }
         autoCreateNext(aClass);
     }
 
-
-    // 创建 readmd.md 文件
-    List<String> javafiles = new ArrayList<>();
+    /**
+     * Creates README.md file summarizing the contest.
+     *
+     * @param NO        contest number
+     * @param dir       target directory
+     * @param questions list of contest questions
+     */
     public void createReadme(int NO, String dir, List<Question> questions) {
         StringBuilder content = new StringBuilder();
-        boolean ok = dir.contains(BI_WEEK_DRI);
+        boolean isBiWeekly = dir.contains(BI_WEEK_DRI);
         String parentDir = new File(new File(dir).getParent()).getParent();
-        content.append("## \uD83C\uDFC6 第 ").append(NO).append(" 场").append(ok ? "双" : "").append("周赛");
-        content.append("\n");
+
+        content.append("## \uD83C\uDFC6 第 ").append(NO).append(" 场").append(isBiWeekly ? "双" : "").append("周赛\n");
         for (int i = 0; i < questions.size(); i++) {
             Question q = questions.get(i);
             if (q == null) continue;
-            content.append("- [ ] ");
-            content.append("[").append(q.getTitle()).append("]");
-            content.append("(").append(q.getUrl()).append(")\n");
-            content.append(" ");
-            content.append("[").append("🎈代码").append("]");
-            content.append("(").append(javafiles.get(i).replace(parentDir,"").replace("\\","/").substring(1)).append(")\n");
+
+            content.append("- [ ] ")
+                    .append("[").append(q.getTitle()).append("]")
+                    .append("(").append(q.getUrl()).append(")\n ")
+                    .append("[").append("🎈代码").append("]")
+                    .append("(").append(javafiles.get(i).replace(parentDir,"").replace("\\","/").substring(1)).append(")\n");
         }
+
         if (CREATE_SOLUTION_ME) {
             IoUtil.writeContent(new File(dir + "solution.md"), content.toString());
         }
-//        System.out.println(content);
-        // father readme.md
+
         if (CREATE_READ_ME_FATHER) {
             File file = new File(parentDir + File.separator + "readme.md");
-            String p = null;
-            if(file.exists()) {
-                p = IoUtil.readContent(file);
-            }
-             IoUtil.writeContent(file,(StringUtils.isEmpty(content.toString()) ? "" : content.toString()) + (StringUtils.isEmpty(p) ? "" : ( "\n\n\n" + p)));
+            String existingContent = file.exists() ? IoUtil.readContent(file) : "";
+            IoUtil.writeContent(file, content.toString() + (StringUtils.isEmpty(existingContent) ? "" : "\n\n\n" + existingContent));
         }
     }
-
-
 }

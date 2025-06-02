@@ -1,37 +1,39 @@
 package code_generation.contest;
 
 /**
+ * Interface defining operations for custom problem handling and template generation.
+ * Provides default implementations for common operations while allowing customization.
  * @author: wuxin0011
- * @Description: 自定义题目接口
+ * @since 1.0
  */
 public interface CustomProblem {
 
+    /**
+     * Default implementation that starts problem processing without input requirement.
+     * Delegates to {@link #start(Class, boolean)} with input flag set to false.
+     *
+     * @param c the target class to process
+     */
     default void start(Class<?> c) {
         start(c, false);
     }
 
     /**
-     * 必须实现
-     * <p>
-     * 自定义一个生成模板
+     * Main method to start custom template generation for a given class.
+     * Implementing classes must provide concrete implementation.
      *
-     * @param c     类
-     * @param input 是否需要输入
-     * @see code_generation.crwal.leetcode.LCCustom#start(Class, boolean)
-     * @see code_generation.crwal.leetcode.LCEveryDay#start(Class, boolean)
+     * @param c the target class to process
+     * @param input flag indicating whether input handling is required
      */
     void start(Class<?> c, boolean input);
 
-
     /**
-     * 创建题目
-     * @param problemInfo 题目信息
-     * @see code_generation.crwal.leetcode.LCEveryDay#createTemplate(ProblemInfo)
+     * Creates a problem template with the given problem information.
+     * Provides default implementation that displays the problem info.
+     * Implementing classes should override for actual file creation.
+     *
+     * @param problemInfo contains metadata about the problem to be created
      */
     default void createTemplate(ProblemInfo problemInfo) {
-        System.out.println("====info start ======");
-        System.out.println(problemInfo);
-        System.out.println("====end======");
-        System.out.println("if not create file ,place implements !");
     }
 }

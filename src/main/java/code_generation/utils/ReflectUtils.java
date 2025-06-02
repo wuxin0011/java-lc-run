@@ -15,22 +15,43 @@ import java.util.Stack;
 
 
 /**
- * @author: wuxin0011
- * @Description:
+ * Utility class providing various reflection-based operations and helper methods for handling
+ * class information, method details, type parsing, and input/output transformations.
+ * This class is designed to assist in scenarios requiring dynamic interaction with classes,
+ * methods, and their metadata.
+ *
+ * The utility includes methods for extracting class and method descriptions, parsing arguments,
+ * converting strings into typed arrays or lists, and handling special cases such as constructor
+ * inputs and outputs. Additionally, it provides methods for validating empty strings or arrays,
+ * error handling, and processing test case annotations.
+ *
+ * The methods are generic where applicable, allowing them to operate on a wide range of types.
+ * Private helper methods support the public API by performing low-level operations such as
+ * creating specialized data structures or parsing complex inputs.
+ *
+ * This class is not intended to be instantiated directly and serves as a static utility.
  */
-@SuppressWarnings("all")
 public class ReflectUtils {
 
 
+    /**
+     * A constant representing an empty string.
+     * This immutable value is used throughout the class to denote the absence of a string value
+     * or to initialize variables that will later be assigned actual string content.
+     * It serves as a standardized representation of an empty string, ensuring consistency
+     * and avoiding unnecessary object creation.
+     */
     private static final String EMPTY_STR = "";
 
-    public static void main(String[] args) {
-        IoUtil.testUtil(ReflectUtils.class, "t1", "test.txt");
-    }
 
 
-
-
+    /**
+     * Retrieves the description information of a class based on the provided class object.
+     *
+     * @param c the class object for which the description information is to be retrieved
+     * @return a string containing the formatted description information of the class,
+     *         or an empty string if the input class object is null or no description annotation is found
+     */
     public static <T> String getClassInfo(Class<T> c) {
         if (c == null) {
             return EMPTY_STR;
@@ -38,6 +59,14 @@ public class ReflectUtils {
         return getDescriptionInfo(c.getDeclaredAnnotation(Description.class));
     }
 
+    /**
+     * Retrieves the description information of a method based on the provided class and method name.
+     *
+     * @param c the class object that contains the method for which the description information is to be retrieved
+     * @param methodName the name of the method for which the description information is to be retrieved
+     * @return a string containing the formatted description information of the method,
+     *         or an empty string if the method does not exist or no description annotation is found
+     */
     public static <T> String getMethodInfo(Class<T> c, String methodName) {
         try {
             return getMethodInfo(c.getDeclaredMethod(methodName, c));
@@ -47,6 +76,13 @@ public class ReflectUtils {
     }
 
 
+    /**
+     * Retrieves the description information of a method based on the provided method object.
+     *
+     * @param method the method object for which the description information is to be retrieved
+     * @return a string containing the formatted description information of the method,
+     *         or an empty string if the input method object is null or no description annotation is found
+     */
     public static <T> String getMethodInfo(Method method) {
         if (method == null) {
             return EMPTY_STR;
@@ -54,6 +90,13 @@ public class ReflectUtils {
         return getDescriptionInfo(method.getDeclaredAnnotation(Description.class));
     }
 
+    /**
+     * Retrieves the formatted description information based on the provided Description annotation.
+     *
+     * @param description the Description annotation object containing details about the problem
+     * @return a formatted string containing the problem's information such as description, tags, difficulty, URL, types, and reference links;
+     *         returns an empty string if the input Description object is null or lacks relevant data
+     */
     public static <T> String getDescriptionInfo(Description description) {
         if (description == null) {
             return EMPTY_STR;
@@ -82,6 +125,14 @@ public class ReflectUtils {
     }
 
 
+    /**
+     * Retrieves and concatenates the types associated with a given Description annotation.
+     * This includes both predefined types and custom types, filtering out any empty or null values.
+     *
+     * @param description the Description annotation object containing type information
+     * @return a string representing the concatenated types from the Description annotation,
+     *         or an empty string if no valid types are found or the input is null
+     */
     public static String getTypes(Description description) {
         Type[] types = description.types();
         String[] customTypes = description.customType();
@@ -104,6 +155,14 @@ public class ReflectUtils {
     }
 
 
+    /**
+     * Retrieves and formats the reference links associated with a given Description annotation.
+     * Filters out any empty or null values from the views array and constructs a formatted string.
+     *
+     * @param description the Description annotation object containing the reference links
+     * @return a formatted string representing the concatenated reference links with their respective indices,
+     *         or an empty string if the input is null, the views array is empty, or no valid links are found
+     */
     private static String getViews(Description description) {
         if (description == null) {
             return EMPTY_STR;
@@ -130,19 +189,55 @@ public class ReflectUtils {
     }
 
 
+    /**
+     * Checks if the provided string is empty or null.
+     *
+     * @param s the string to check for emptiness or nullity
+     * @return true if the string is null or has a length of zero, false otherwise
+     */
     public static boolean isEmpty(String s) {
         return s == null || s.length() == 0;
     }
 
+    /**
+     * Checks if the provided string array is empty or null.
+     *
+     * @param s the string array to check for emptiness or nullity
+     * @return true if the string array is null or has a length of zero, false otherwise
+     */
     public static boolean isEmpty(String[] s) {
         return s == null || s.length == 0;
     }
 
 
+    /**
+     * Parses an argument based on the provided parameters and returns the parsed object.
+     *
+     * @param origin the class object from which the method is invoked
+     * @param methodName the name of the method for which the argument is being parsed
+     * @param src the class object representing the type of the argument to be parsed
+     * @param input the string representation of the input to be parsed
+     * @param idx the index of the argument in the method's parameter list
+     * @param argsSize the total number of arguments in the method's parameter list
+     * @return the parsed object corresponding to the input string and argument type
+     */
     public static Object parseArg(Class<?> origin, String methodName, Class<?> src, String input, int idx, int argsSize) {
         return parseArg(origin, methodName, src.getSimpleName(), input, idx, argsSize);
     }
 
+    /**
+     * Parses the given input string into an object of the specified type.
+     * The method supports a wide range of types, including primitive types, arrays, and custom objects.
+     * If the input is null, empty, or cannot be parsed into the specified type, the method returns null.
+     *
+     * @param src       the class associated with the method invocation context
+     * @param methodName the name of the method being invoked
+     * @param type      the target type to which the input should be parsed (e.g., "int", "String[]", "TreeNode")
+     * @param input     the input string to be parsed
+     * @param idx       the index of the argument in the method signature
+     * @param argsSize  the total number of arguments in the method signature
+     * @return the parsed object corresponding to the specified type, or null if parsing fails
+     */
     public static Object parseArg(Class<?> src, String methodName, String type, String input, int idx, int argsSize) {
         if (input == null || "".equals(input) || input.length() == 0) {
             System.out.println("read content is null");
@@ -240,6 +335,16 @@ public class ReflectUtils {
 
     }
 
+    /**
+     * Creates an array of TreeNode objects from the given input string.
+     * The input string is parsed into a list of lists of strings, and each inner list is used to construct a TreeNode.
+     * If an exception occurs during the creation of a TreeNode, the corresponding array element is set to null.
+     *
+     * @param input the input string to be parsed and converted into an array of TreeNode objects
+     * @return an array of TreeNode objects constructed from the input string,
+     *         where each element corresponds to a TreeNode created from an inner list of strings,
+     *         or null if an exception occurred during creation
+     */
     private static TreeNode[] createListTreeNodeArray(String input) {
         List<List<String>> lists = parseDoubleString(input);
         TreeNode[] nodes = new TreeNode[lists.size()];
@@ -258,7 +363,19 @@ public class ReflectUtils {
         return nodes;
     }
 
-    //  // https://leetcode.cn/problems/merge-k-sorted-lists/
+
+    /**
+     * Creates an array of ListNode objects from a string representation of nested integer lists.
+     * Each inner list in the input is converted into a ListNode chain, and the resulting chains
+     * are stored in an array. If any error occurs during conversion, the corresponding array
+     * entry is set to null.
+     *
+     * @param input a string representation of a list containing nested integer lists, where each
+     *              inner list represents the values for a ListNode chain
+     * @return an array of ListNode objects, where each element corresponds to a ListNode chain
+     *         created from an inner list in the input; null values are placed in the array if
+     *         an error occurs during conversion
+     */
     public static ListNode[] createListNodeArray(String input) {
         List<List<Integer>> ls = parseListDoubleInteger(input);
         int n = ls.size();
@@ -275,6 +392,14 @@ public class ReflectUtils {
         return nodes;
     }
 
+    /**
+     * Converts a string input into a two-dimensional array of longs.
+     * The method parses the input string to generate a list of lists containing Long values,
+     * which is then transformed into a 2D array of primitive longs.
+     *
+     * @param input the string input to be parsed into a 2D array of longs
+     * @return a two-dimensional array of primitive longs derived from the parsed input
+     */
     private static long[][] doubleLongArray(String input) {
         List<List<Long>> longList = parseDoubleLongList(input);
         long[][] longs = new long[longList.size()][];
@@ -287,6 +412,14 @@ public class ReflectUtils {
         return longs;
     }
 
+    /**
+     * Parses a string representation into a list of lists containing Long values.
+     * The input string is expected to be structured in a way that can be processed by the parseDoubleString method.
+     * Each inner list contains numeric strings that are converted to Long values.
+     *
+     * @param input the string to be parsed into a list of lists of Long values
+     * @return a list of lists containing Long values parsed from the input string
+     */
     private static List<List<Long>> parseDoubleLongList(String input) {
         List<List<String>> list = parseDoubleString(input);
         List<List<Long>> longs = new ArrayList<>();
@@ -300,6 +433,13 @@ public class ReflectUtils {
         return longs;
     }
 
+    /**
+     * Converts a string representation of a nested list of doubles into a 2D array of doubles.
+     * The input string is parsed into a list of lists of doubles, which is then transformed into a 2D array.
+     *
+     * @param input the string representation of a nested list of doubles to be converted
+     * @return a 2D array of doubles parsed from the input string
+     */
     private static double[][] doubleDoubleArray(String input) {
         List<List<Double>> doubleDoubleList = parseDoubleDoubleList(input);
         double[][] doubles = new double[doubleDoubleList.size()][];
@@ -313,6 +453,13 @@ public class ReflectUtils {
     }
 
 
+    /**
+     * Converts a string input into a single long array by parsing the input into a list of Long values.
+     * Each Long value from the list is then transferred to a primitive long array.
+     *
+     * @param input the string representation of a list of long values to be parsed and converted
+     * @return an Object which is actually a primitive long array containing the parsed long values
+     */
     private static Object oneLongArray(String input) {
         List<Long> ls = parseListLong(input);
         long[] res = new long[ls.size()];
@@ -322,6 +469,15 @@ public class ReflectUtils {
         return res;
     }
 
+    /**
+     * Parses a given input string into a list of Long values.
+     * The method first retrieves a list of strings by calling parseListString,
+     * then attempts to convert each string in the list to a Long.
+     * Strings that cannot be parsed into a Long are ignored.
+     *
+     * @param input the input string to be parsed into a list of Long values
+     * @return a list of Long values successfully parsed from the input string
+     */
     private static List<Long> parseListLong(String input) {
         List<String> strings = parseListString(input);
         List<Long> res = new ArrayList<>();
@@ -335,6 +491,20 @@ public class ReflectUtils {
     }
 
 
+    /**
+     * Converts the given input string into a list of the specified type based on the method's parameters.
+     * This method determines the appropriate list type by analyzing the return type of the specified method
+     * in the provided class. It supports various generic list types and performs parsing accordingly.
+     *
+     * @param t          the Class object representing the class containing the method to analyze
+     * @param methodName the name of the method whose return type is used to determine the list type
+     * @param type       the type of the parameter being processed (used for method resolution)
+     * @param input      the input string to be parsed into a list of the determined type
+     * @param idx        the index of the parameter being processed (used for method resolution)
+     * @param argsSize   the total number of arguments in the method signature (used for method resolution)
+     * @return an Object representing the parsed list of the determined type, or a default string list
+     *         if the type is not explicitly supported
+     */
     public static Object toList(Class<?> t, String methodName, String type, String input, int idx, int argsSize) {
         String listType = IoUtil.findListReturnTypeMethod(t, methodName, type, idx, argsSize);
         String originType = listType;
@@ -378,6 +548,13 @@ public class ReflectUtils {
         }
     }
 
+    /**
+     * Parses a string input into a list of TreeNode objects.
+     *
+     * @param input the string input to be parsed into TreeNode objects;
+     *        it should be formatted in a way that can be processed by the doubleStringArray method
+     * @return a list of TreeNode objects constructed from the parsed input
+     */
     private static List<TreeNode> parseListTreeNode(String input) {
         List<TreeNode> treeNodes = new ArrayList<>();
         String[][] strings = doubleStringArray(input);
@@ -389,6 +566,12 @@ public class ReflectUtils {
     }
 
 
+    /**
+     * Converts the given input string to a processed string by filtering out specific characters.
+     *
+     * @param input the input string to be processed; can be null or empty
+     * @return the processed string after filtering out ignored characters, or an empty string if input is null or empty
+     */
     public static String toString(String input) {
         if (input == null || input.length() == 0) {
             // throw new NullPointerException("input content is null");
@@ -405,6 +588,14 @@ public class ReflectUtils {
     }
 
 
+    /**
+     * Converts a string representation of a list of booleans into a boolean array.
+     * The input string is parsed into a list of Boolean objects, which is then
+     * converted into a primitive boolean array.
+     *
+     * @param input the string representation of a list of booleans to be parsed
+     * @return a boolean array containing the parsed boolean values
+     */
     public static boolean[] oneBooleanArray(String input) {
         List<Boolean> ls = parseListBoolean(input);
         boolean[] ans = new boolean[ls.size()];
@@ -414,6 +605,14 @@ public class ReflectUtils {
         return ans;
     }
 
+    /**
+     * Converts a string representation of a double boolean array into a 2D boolean array.
+     * The input string is parsed into a nested list structure, which is then transformed
+     * into a 2D boolean array where each inner array corresponds to a list of boolean values.
+     *
+     * @param input the string representation of the double boolean array to be converted
+     * @return a 2D boolean array derived from the parsed input string
+     */
     public static boolean[][] doubleBooleanArray(String input) {
         List<List<Boolean>> ls = parseDoubleBoolean(input);
         boolean[][] ans = new boolean[ls.size()][];
@@ -426,6 +625,14 @@ public class ReflectUtils {
         return ans;
     }
 
+    /**
+     * Parses a given input string into a list of boolean lists by interpreting each string element.
+     * The method relies on the presence of the character 't' in the string to determine if the value is true;
+     * otherwise, it is considered false.
+     *
+     * @param input the input string that will be parsed into nested lists of strings and then converted to booleans
+     * @return a list of lists containing boolean values derived from the parsed string input
+     */
     private static List<List<Boolean>> parseDoubleBoolean(String input) {
         List<List<String>> doubles = parseDoubleString(input);
         List<List<Boolean>> ans = new ArrayList<>();
@@ -445,6 +652,15 @@ public class ReflectUtils {
         return ans;
     }
 
+    /**
+     * Parses a string input into a list of Boolean values.
+     * The method first converts the input string into a list of strings using parseListString,
+     * then iterates through each string to determine its Boolean value.
+     * A string is considered true if it contains the character 't', otherwise it is considered false.
+     *
+     * @param input the string to be parsed into a list of Boolean values
+     * @return a list of Boolean values derived from the input string
+     */
     private static List<Boolean> parseListBoolean(String input) {
         List<String> strings = parseListString(input);
         List<Boolean> ans = new ArrayList<>();
@@ -456,6 +672,13 @@ public class ReflectUtils {
     }
 
 
+    /**
+     * Converts a string representation of a list of doubles into an array of double values.
+     * The input string is parsed to extract individual double values which are then stored in the returned array.
+     *
+     * @param input the string containing the representation of a list of doubles
+     * @return an array of double values parsed from the input string
+     */
     public static double[] oneDoubleArray(String input) {
         List<Double> ls = parseDoubleList(input);
         double[] ans = new double[ls.size()];
@@ -466,6 +689,14 @@ public class ReflectUtils {
     }
 
 
+    /**
+     * Parses a string representation of a list into a list of Double values.
+     * Each element in the input string is converted to a Double if possible.
+     * Non-convertible elements are ignored.
+     *
+     * @param input the string representation of a list to be parsed
+     * @return a list of Double values extracted from the input string
+     */
     public static List<Double> parseDoubleList(String input) {
         List<String> list = parseListString(input);
         ArrayList<Double> doubles = new ArrayList<>();
@@ -479,6 +710,15 @@ public class ReflectUtils {
         return doubles;
     }
 
+    /**
+     * Parses a string input into a list of lists containing Double values.
+     * The input is expected to be structured in a way that can be processed by the parseDoubleString method,
+     * which converts it into a list of lists of strings. Each string is then converted to a Double using
+     * the parseDouble method.
+     *
+     * @param input the string input to be parsed into a list of lists of Double values
+     * @return a list of lists of Double values parsed from the input string
+     */
     private static List<List<Double>> parseDoubleDoubleList(String input) {
         List<List<String>> list = parseDoubleString(input);
         List<List<Double>> doubles = new ArrayList<>();
@@ -491,12 +731,20 @@ public class ReflectUtils {
         }
         return doubles;
     }
+    /**
+     * Converts a string representation of a list into an array of integers.
+     * The input string can be in the format of a JSON-like array (e.g., "[1, 2, 3]")
+     * or a JSON-like object (e.g., "{1, 2, 3}"). Empty or invalid inputs return an empty array.
+     *
+     * @param input the string representation of a list to be parsed into integers
+     * @return an array of integers parsed from the input string, or an empty array if input is invalid or empty
+     */
     public static int[] oneIntArray(String input) {
         if ("[]".equals(input) || "{}".equals(input)) {
             return new int[]{};
         }
         List<Integer> ls = parseListInteger(input);
-        if (ls.size() == 0) {
+        if (ls.isEmpty()) {
             return new int[]{};
         }
         int[] ans = new int[ls.size()];
@@ -506,6 +754,17 @@ public class ReflectUtils {
         return ans;
     }
 
+    /**
+     * Converts a string representation of a nested integer list into a two-dimensional integer array.
+     * The input string should follow specific formats to represent an empty or non-empty nested list.
+     * If the input represents an empty structure, an empty two-dimensional array is returned.
+     *
+     * @param input the string representation of a nested integer list.
+     *              Supported formats for empty structures include "[]", "[[]]", "{}", and "{{}}".
+     *              Non-empty structures must follow a valid parseable format expected by parseListDoubleInteger.
+     * @return a two-dimensional integer array corresponding to the parsed nested integer list.
+     *         Returns an empty two-dimensional array if the input represents an empty structure or parsing fails.
+     */
     public static int[][] doubleIntArray(String input) {
         if ("[]".equals(input) || "[[]]".equals(input) || "{}".equals(input) || "{{}}".equals(input)) {
             return new int[][]{};
@@ -525,6 +784,13 @@ public class ReflectUtils {
         return ans;
     }
 
+    /**
+     * Converts a string representation of a three-dimensional integer array into an actual 3D integer array.
+     * The input string is parsed into a nested list structure, which is then converted into a 3D array.
+     *
+     * @param input the string representation of the three-dimensional integer array to be converted
+     * @return a three-dimensional integer array parsed from the input string
+     */
     public static int[][][] threeIntArray(String input) {
         List<List<List<Integer>>> ls = parseListThreeInteger(input);
         int[][][] result = new int[ls.size()][][];
@@ -543,6 +809,12 @@ public class ReflectUtils {
     }
 
 
+    /**
+     * Converts a given string into a character array by parsing it into a list of characters first.
+     *
+     * @param input the string to be converted into a character array
+     * @return a character array containing all characters from the input string
+     */
     public static char[] oneCharArray(String input) {
         List<Character> ls = parseListChar(input);
         char[] cs = new char[ls.size()];
@@ -552,6 +824,15 @@ public class ReflectUtils {
         return cs;
     }
 
+    /**
+     * Converts a given string into a two-dimensional character array.
+     * The input string is parsed into a list of character lists, which is then
+     * transformed into a 2D character array where each row corresponds to a list
+     * of characters.
+     *
+     * @param input the string to be parsed and converted into a 2D character array
+     * @return a two-dimensional character array derived from the parsed input string
+     */
     public static char[][] doubleCharArray(String input) {
         List<List<Character>> ls = parseListDoubleChar(input);
         int row = ls.size();
@@ -567,6 +848,19 @@ public class ReflectUtils {
     }
 
 
+    /**
+     * Converts a given string representation into a three-dimensional character array.
+     * The input string is parsed to construct a nested structure of characters organized
+     * in a 3D array format. The method relies on a helper method, parseThreeCharArray,
+     * to generate the intermediate nested list structure before converting it into the
+     * final 3D array.
+     *
+     * @param input the string to be parsed and converted into a 3D character array;
+     *              the format of the string should be compatible with the expected
+     *              structure returned by parseThreeCharArray
+     * @return a three-dimensional character array derived from the parsed structure
+     *         of the input string
+     */
     public static char[][][] threeCharArray(String input) {
         List<List<List<Character>>> lists = parseThreeCharArray(input);
         int row = lists.size();
@@ -584,6 +878,14 @@ public class ReflectUtils {
     }
 
 
+    /**
+     * Parses a string representation of a list into a list of integers.
+     * The input string is expected to be formatted as a list, such as "[1, 2, 3]" or "{4, 5, 6}".
+     * Non-integer values within the list are ignored.
+     *
+     * @param input the string representation of a list to be parsed
+     * @return a list of integers extracted from the input string
+     */
     public static List<Integer> parseListInteger(String input) {
         List<String> strings = parseListString(input);
         ArrayList<Integer> ans = new ArrayList<>();
@@ -600,6 +902,14 @@ public class ReflectUtils {
         return ans;
     }
 
+    /**
+     * Parses a string representation of a nested list structure into a list of lists containing integers.
+     * The input string is expected to represent a nested list where each inner list contains integer values.
+     * Handles various edge cases such as empty or malformed input gracefully.
+     *
+     * @param input the string representation of a nested list structure to be parsed
+     * @return a list of lists of integers parsed from the input string, or an empty list if the input is empty or invalid
+     */
     public static List<List<Integer>> parseListDoubleInteger(String input) {
 
         List<List<Integer>> ls = new ArrayList<>();
@@ -625,6 +935,15 @@ public class ReflectUtils {
         return ls;
     }
 
+    /**
+     * Parses a string input into a three-dimensional list of integers.
+     * The method processes the input by first parsing it into a three-dimensional list of strings,
+     * then converting each string to an integer where possible. Strings that cannot be parsed into
+     * integers are ignored.
+     *
+     * @param input the input string to be parsed into a three-dimensional list of integers
+     * @return a three-dimensional list of integers derived from the input string
+     */
     public static List<List<List<Integer>>> parseListThreeInteger(String input) {
         List<List<List<Integer>>> ans = new ArrayList<>();
         List<List<List<String>>> lists = parseThreeString(input);
@@ -650,6 +969,14 @@ public class ReflectUtils {
     }
 
 
+    /**
+     * Parses a given string into a list of characters.
+     * The method first parses the input string into a list of strings using an auxiliary method,
+     * then extracts the first character from each string and adds it to the resulting list.
+     *
+     * @param input the input string to be parsed into a list of characters
+     * @return a list of characters extracted from the input string
+     */
     public static List<Character> parseListChar(String input) {
         List<Character> ls = new ArrayList<>();
         List<String> strings = parseListString(input);
@@ -659,6 +986,14 @@ public class ReflectUtils {
         return ls;
     }
 
+    /**
+     * Parses a given string input into a list of lists of characters.
+     * The method processes the input by first parsing it into a list of lists of strings,
+     * then converts each string into its corresponding character.
+     *
+     * @param input the input string to be parsed
+     * @return a list of lists of characters derived from the input string
+     */
     public static List<List<Character>> parseListDoubleChar(String input) {
         List<List<String>> lists = parseDoubleString(input);
         List<List<Character>> ls = new ArrayList<>();
@@ -673,6 +1008,16 @@ public class ReflectUtils {
         return ls;
     }
 
+    /**
+     * Parses a given string input into a three-dimensional list of characters.
+     * The method processes the input by first converting it into a three-dimensional list of strings
+     * using an external method `parseThreeString`. Each non-null string is then reduced to its first character,
+     * which is added to the resulting structure.
+     *
+     * @param input the input string to be parsed into a three-dimensional list of characters
+     * @return a three-dimensional list of characters derived from the input string,
+     *         where each character corresponds to the first character of the strings in the intermediate structure
+     */
     public static List<List<List<Character>>> parseThreeCharArray(String input) {
         List<List<List<Character>>> ans = new ArrayList<>();
         List<List<List<String>>> lists = parseThreeString(input);
@@ -694,6 +1039,12 @@ public class ReflectUtils {
     }
 
 
+    /**
+     * Converts a given input string into an array of strings by parsing it into a list and then transforming it.
+     *
+     * @param input the input string that needs to be parsed and converted into an array of strings
+     * @return an array of strings derived from the parsed input string
+     */
     public static String[] oneStringArray(String input) {
         List<String> ls = parseListString(input);
         String[] ans = new String[ls.size()];
@@ -703,6 +1054,13 @@ public class ReflectUtils {
         return ans;
     }
 
+    /**
+     * Converts a given input string into a two-dimensional String array by parsing the input
+     * into nested lists and then transforming it into an array structure.
+     *
+     * @param input the input string that needs to be parsed and converted into a 2D String array
+     * @return a two-dimensional String array derived from the parsed input
+     */
     public static String[][] doubleStringArray(String input) {
         List<List<String>> lists = parseDoubleString(input);
         int row = lists.size();
@@ -716,6 +1074,13 @@ public class ReflectUtils {
         return ans;
     }
 
+    /**
+     * Converts a given input string into a three-dimensional String array
+     * by parsing it into nested lists and transforming those lists into arrays.
+     *
+     * @param input the input string to be parsed and converted into a 3D String array
+     * @return a three-dimensional String array derived from the parsed input
+     */
     public static String[][][] threeStringArray(String input) {
         List<List<List<String>>> lists = parseThreeString(input);
         int row = lists.size();
@@ -733,6 +1098,14 @@ public class ReflectUtils {
     }
 
 
+    /**
+     * Parses a given input string based on specific flag characters and returns a list of substrings.
+     * The method identifies substrings enclosed by start and end flags, optionally separated by an interrupt flag.
+     *
+     * @param input the input string to be parsed; may contain special flag characters or plain text
+     * @return a list of strings extracted from the input based on the parsing logic;
+     *         if no flags are present, the entire input is returned as a single-element list
+     */
     public static List<String> parseListString(String input) {
         List<String> ls = new ArrayList<>();
         char[] flag = getFlag(input);
@@ -767,6 +1140,16 @@ public class ReflectUtils {
     }
 
 
+    /**
+     * Parses a given input string based on specific flag characters and returns a nested list structure.
+     * The method identifies segments of the string enclosed by start and end flags,
+     * and further splits these segments by an interrupt flag.
+     *
+     * @param input the input string to be parsed; must contain valid flag characters for processing
+     * @return a list of lists of strings, where each inner list represents a segment enclosed
+     *         by the start and end flags, and the strings within the inner list are substrings
+     *         separated by the interrupt flag
+     */
     public static List<List<String>> parseDoubleString(String input) {
         StringBuilder sb = null;
         char[] flag = getFlag(input);
@@ -811,6 +1194,16 @@ public class ReflectUtils {
     }
 
 
+    /**
+     * Parses a given input string into a nested list structure based on specific delimiters.
+     * The method identifies three levels of nesting using start, end, and interrupt flags
+     * derived from the input string. It processes the input character by character,
+     * grouping substrings into lists at each level of nesting.
+     *
+     * @param input the input string to be parsed; must not be null or empty
+     * @return a nested list of strings, where each level of nesting corresponds to the
+     *         hierarchical structure defined by the delimiters in the input string
+     */
     public static List<List<List<String>>> parseThreeString(String input) {
         List<List<List<String>>> ans = new ArrayList<>();
         char[] charArray = input.toCharArray();
@@ -862,6 +1255,16 @@ public class ReflectUtils {
     }
 
 
+    /**
+     * Provides error information and example input formats based on the specified argument type.
+     * This method is used to guide users on how to provide valid input for various data types.
+     *
+     * @param argType the type of argument for which error information is requested.
+     *                Supported types include "boolean", "long", "double", "float", "int", "int[]",
+     *                "ListNode", "int[][]", "char", "char[]", "char[][]", "List", "string[]",
+     *                "string[][]", and "TreeNode". If an unsupported type is provided,
+     *                a default message for unknown types is displayed.
+     */
     public static void errorInfo(String argType) {
         switch (argType) {
             case "boolean":
@@ -912,6 +1315,17 @@ public class ReflectUtils {
     }
 
 
+    /**
+     * Determines a flag array based on the first non-space character of the input string.
+     * The method identifies specific starting characters ('{' or '[') and assigns
+     * corresponding values to the returned flag array. If no valid starting character is found,
+     * the flag array reflects an invalid format by modifying its last element.
+     *
+     * @param input the input string to analyze for determining the flag; must not be null
+     * @return a char array of length 4 where:
+     *         - The first three elements represent the identified flag characters
+     *         - The fourth element indicates validity ('Y' for valid, 'N' for invalid)
+     */
     public static char[] getFlag(String input) {
         char st = '\0';
         for (int i = 0; i < input.length(); i++) {
@@ -937,6 +1351,17 @@ public class ReflectUtils {
     }
 
 
+    /**
+     * Retrieves the package information based on the provided class file path.
+     * The method processes the input path to determine the package structure,
+     * ensuring it is valid and belongs to the expected project directory.
+     *
+     * @param classFile the path to the class file or directory for which package information is required
+     * @return a string representing the package structure in dot notation (e.g., com.example.package)
+     * @throws NullPointerException if the provided classFile parameter is null
+     * @throws RuntimeException if the directory is invalid, outside the project's working directory,
+     *                          or does not belong to the expected project root directory
+     */
     public static String getPackageInfo(String classFile) {
         if (classFile == null) {
             throw new NullPointerException();
@@ -991,6 +1416,17 @@ public class ReflectUtils {
     }
 
 
+    /**
+     * Parses a constructor class string into an array of strings based on specific delimiters and flags.
+     *
+     * The method identifies the start, end, and intermediate delimiters either from the input string's flags
+     * or defaults to predefined values. It then processes the string to extract substrings separated by the
+     * intermediate delimiter, while accounting for nested structures defined by the start and end delimiters.
+     *
+     * @param s the input string to be parsed, which may contain nested structures and delimiters
+     * @return an array of strings representing the parsed components of the input string,
+     *         with ignored or processed content as per the utility method `StringUtils.ingoreString`
+     */
     // constructor class parse
     public static String[] parseConstrunctorClassString(String s) {
         int st = 0, ed = s.length() - 1;
@@ -1068,6 +1504,15 @@ public class ReflectUtils {
 
 
 
+    /**
+     * Processes the input argument for a constructor method and updates the result list.
+     * This method parses the input string to extract class names relevant to the constructor,
+     * then adds these parsed strings to the provided result list.
+     *
+     * @param arg    the input string containing constructor-related class information to be parsed
+     * @param result the list to which the parsed class names will be added
+     * @param method the method object associated with the constructor being processed
+     */
     public static void handlerConstructorMethodInput(String arg, List<String> result, Method method) {
         String[] ss = parseConstrunctorClassString(arg);
         for (String s : ss) {
@@ -1075,12 +1520,29 @@ public class ReflectUtils {
         }
     }
 
+    /**
+     * Handles the constructor method input by delegating the processing to an overloaded method.
+     * This method acts as a wrapper that simplifies the invocation by allowing the caller
+     * to omit the optional parameter.
+     *
+     * @param arg    the input argument to be processed, typically representing a key or identifier
+     * @param result a list of strings where the processed results will be stored or appended
+     */
     public static void handlerConstructorMethodInput(String arg, List<String> result) {
         handlerConstructorMethodInput(arg, result, null);
     }
 
 
 
+    /**
+     * Processes the output of a constructor method and appends the result to a list.
+     * This method evaluates the return type of the provided method and determines
+     * how to format the expression string before adding it to the result list.
+     *
+     * @param exp the expression string representing the constructor output
+     * @param result the list where the processed output will be stored
+     * @param method the method object whose return type is used to determine processing logic
+     */
     public static void handlerConstructorMethodOutput(String exp, List<String> result, Method method) {
         Class<?> returnType = method.getReturnType();
         String returnName = returnType.getSimpleName();
@@ -1099,6 +1561,16 @@ public class ReflectUtils {
         }
     }
 
+    /**
+     * Loads the origin class of the given source class.
+     * If the source class is a nested or inner class, the method attempts to return the top-level enclosing class.
+     * If the source class is already a top-level class, it returns the source class itself.
+     * If the source class is null, the method returns null.
+     *
+     * @param src the source class for which the origin class is to be determined
+     * @return the origin class of the source class, or the source class itself if it is not nested,
+     *         or null if the input source class is null
+     */
     public static <T> Class<?> loadOrigin(Class<T> src) {
         if (src == null) {
             return null;
@@ -1116,16 +1588,40 @@ public class ReflectUtils {
         }
     }
 
+    /**
+     * Parses the given string representation of a double value into its primitive double equivalent.
+     * This method internally uses Double.parseDouble to convert the string and then passes the result
+     * to an overloaded parseDouble method.
+     *
+     * @param d the string to be parsed as a double value; must not be null and should contain a valid
+     *          numeric representation
+     * @return the primitive double value corresponding to the input string
+     */
     public static double parseDouble(String d) {
         return parseDouble(Double.parseDouble(d));
     }
 
+    /**
+     * Parses a double value and rounds it to five decimal places.
+     *
+     * @param d the double value to be parsed and rounded
+     * @return the double value rounded to five decimal places
+     */
     // https://leetcode.cn/problems/minimum-cost-to-hire-k-workers
     // 结果保留五位小数
     public static double parseDouble(double d) {
         return Double.parseDouble(String.format("%.5f", d));
     }
 
+    /**
+     * Initializes a new instance of the specified class using the provided arguments.
+     * Attempts to create an instance using the default constructor first. If that fails,
+     * it tries to use the declared constructor with the given arguments.
+     *
+     * @param src the Class object representing the class to instantiate
+     * @param args an array of objects to pass as arguments to the constructor
+     * @return a new instance of the specified class, or null if instantiation fails
+     */
     public static Object initObjcect(Class<?> src,Object[] args) {
         Object obj = null;
 
@@ -1149,6 +1645,14 @@ public class ReflectUtils {
     }
 
 
+    /**
+     * Determines whether the provided class represents a base type.
+     * Base types include primitive types and their corresponding wrapper classes.
+     * If the input class is null, it is considered a base type by default.
+     *
+     * @param c the Class object to evaluate; can be null
+     * @return true if the class represents a base type, false otherwise
+     */
     public static boolean isBaseType(Class<?> c) {
         if (c == null) {
             return true;
@@ -1180,6 +1684,13 @@ public class ReflectUtils {
         return false;
     }
 
+    /**
+     * Determines the index of the first non-base type in the provided array of parameter types.
+     * If the array is null or all elements are base types, returns -1.
+     *
+     * @param parameterTypes an array of Class objects representing the parameter types to evaluate
+     * @return the index of the first non-base type in the array, or -1 if the array is null or contains only base types
+     */
     public static int handlerVoidReturnType(Class<?>[] parameterTypes) {
         if (parameterTypes == null) {
             return -1;
@@ -1196,20 +1707,36 @@ public class ReflectUtils {
 
 
 
+    /**
+     * Retrieves the test case information associated with the given class.
+     *
+     * @param aClass the Class object for which the test case information is to be retrieved
+     * @return an array of integers containing the test case information, or null if no annotation is present
+     */
     public static int[] getTestCaseInfo(Class<?> aClass) {
         return getTestCaseInfo(aClass.getDeclaredAnnotation(TestCaseGroup.class));
     }
 
+    /**
+     * Retrieves the test case information associated with the given method.
+     * The method looks for a declared annotation of type TestCaseGroup on the provided method
+     * and uses it to determine the test case details.
+     *
+     * @param method the method for which test case information is to be retrieved
+     * @return an array of integers representing the test case information derived from the TestCaseGroup annotation
+     */
     public static int[] getTestCaseInfo(Method method) {
         return getTestCaseInfo(method.getDeclaredAnnotation(TestCaseGroup.class));
     }
 
+
     /**
-     * 获取需要测试的测试用力
+     * Retrieves the test case information based on the provided annotation.
      *
-     * @param annotation TestCaseGroup 注解
-     * @return
-     * @see TestCaseGroup
+     * @param annotation the TestCaseGroup annotation containing the start and end values for test cases
+     * @return an array of two integers where the first element is the starting test case index
+     *         and the second element is the ending test case index; defaults to [1, Integer.MAX_VALUE]
+     *         if the annotation is null or its use flag is false
      */
     public static int[] getTestCaseInfo(TestCaseGroup annotation) {
         if (annotation == null || !annotation.use()) {

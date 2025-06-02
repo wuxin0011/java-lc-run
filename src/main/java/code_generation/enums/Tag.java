@@ -1,63 +1,67 @@
 package code_generation.enums;
 
 /**
- * @author: wuxin0011
- * @Description: 题目分类
+ * An enumeration representing different problem categories/tags for coding problems.
+ * Each tag has a Chinese description and can be used to classify problems by their
+ * primary data structure or algorithmic concept.
+ * @author wuxin0011
+ * @since 1.0
  */
 public enum Tag {
 
     /**
-     * 字符串
+     * Problems primarily dealing with string manipulation and operations
      */
     STRING("字符串"),
 
     /**
-     * 其他
+     * Problems that don't fit into other specific categories
      */
     OTHER("其他"),
 
     /**
-     * 单链表
+     * Problems involving singly linked list operations
      */
     LINKLIST("单链表"),
 
     /**
-     * 数组
+     * Problems focused on array manipulation and algorithms
      */
     ARRAY("数组"),
 
-
     /**
-     * 树
+     * Problems involving tree data structures and algorithms
      */
     TREE("树"),
 
-
     /**
-     * 图
+     * Problems dealing with graph theory and graph algorithms
      */
     GRAPHICAl("图"),
 
-
     /**
-     * 空标签
+     * Default tag for problems without a specified category
      */
     NULL("unknown");
 
-
-    // TODO 补充其他类型
-
-
+    /**
+     * Chinese description of the tag
+     */
     private String tag;
 
-
+    /**
+     * Constructs a Tag enum constant with the specified Chinese description.
+     * @param tag The Chinese description of the problem tag
+     */
     Tag(String tag) {
         this.tag = tag;
     }
 
+    /**
+     * Gets the Chinese description of this problem tag.
+     * @return The Chinese tag description
+     */
     public String getTag() {
         return this.tag;
     }
-
-
 }

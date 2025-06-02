@@ -12,24 +12,52 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
- * @author: wuxin0011
- * @Description:
+ * Utility class for handling configuration files and properties.
+ * Provides methods to read, parse, and manage configuration files in .properties format,
+ * with special handling for cookies and HTTP headers.
+ * @author wuxin0011
+ * @since 1.0
  */
 public class Config {
 
+    /**
+     * The suffix for configuration files (.properties)
+     */
     public final static String config_suffix = ".properties";
+
+    /**
+     * The filename for storing cookies (cookies.txt)
+     */
     private static final String cookieFile = Constant.cookies + ".txt";
 
-    private Config() {
+    /**
+     * Default template for configuration files containing common HTTP headers
+     */
+    private static final String defaultTemplate = "Host=leetcode.cn\n" +
+            "Referer=https://leetcode.cn\n" +
+            "Origin=https://leetcode.cn/\n" +
+            "Connection=keep-alive\n" +
+            "Cookie=Cookie\n" +
+            "Accept=*/*\n" +
+            "Sec-Fetch-Mode=cors\n" +
+            "Sec-Ch-Ua-Platform=Windows\n" +
+            "User-Agent=\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36 Edg/116.0.1938.62\";\n" +
+            "Accept-Language=zh-CN,zh;desc=0.9,en;desc=0.8,en-GB;desc=0.7,en-US;desc=0.6\n" +
+            "Cache-Control=max-age=0";
 
+    /**
+     * Private constructor to prevent instantiation (utility class)
+     */
+    private Config() {
     }
 
     /**
-     * 初始化读取配置文件 并 将配置文件内容加载到 map<String,String> 中保存
-     * 同时以配置文件 name 作为 key 方便后续获取
+     * Initializes and loads multiple configuration files from the specified absolute path.
+     * Reads all configuration files defined in Constant.CONFIGS and loads them into a map.
      *
-     * @param absolutePath 绝对路径 如果不是绝对路径会报错
-     * @return map
+     * @param absolutePath The absolute directory path containing configuration files
+     * @return Map of configuration maps, keyed by configuration name
+     * @throws RuntimeException if the path is not absolute
      */
     public static Map<String, Map<String, String>> initConfig(String absolutePath) {
         if (!IoUtil.isAbsolutePath(absolutePath)) {
@@ -43,10 +71,14 @@ public class Config {
         return maps;
     }
 
-
-
-
-
+    /**
+     * Loads a configuration file from the specified path.
+     * Handles special case for headers configuration by merging with cookies.txt content.
+     *
+     * @param path The directory path containing the configuration file
+     * @param configName The name of the configuration file (without .properties suffix)
+     * @return Properties object containing the configuration, or empty Properties if file doesn't exist
+     */
     public static Properties getConfig(String path, String configName) {
         try {
             File file = null;
@@ -66,7 +98,14 @@ public class Config {
         }
     }
 
-
+    /**
+     * Creates or verifies existence of a configuration file.
+     * If the file doesn't exist, creates it with default template.
+     *
+     * @param path The directory path for the configuration file
+     * @param configName The name of the configuration file
+     * @return File object representing the configuration file, or null if creation failed
+     */
     private static File createConfigFile(String path, String configName) {
         configName = check(configName);
 
@@ -79,13 +118,25 @@ public class Config {
         return createConfigFile(new File(configName));
     }
 
-
+    /**
+     * Creates or verifies existence of a configuration file (class-specific version).
+     *
+     * @param file The configuration file to create/verify
+     * @param c The class associated with the configuration
+     * @return File object representing the configuration file, or null if creation failed
+     */
     @SuppressWarnings("all")
     private static File createConfigFile(File file, Class<?> c) {
         return createConfigFile(file);
     }
 
-
+    /**
+     * Creates or verifies existence of a configuration file.
+     * Also ensures cookies.txt exists in the same directory.
+     *
+     * @param file The configuration file to create/verify
+     * @return File object representing the configuration file, or null if creation failed
+     */
     @SuppressWarnings("all")
     private static File createConfigFile(File file) {
         BufferedWriter writer = null;
@@ -104,7 +155,6 @@ public class Config {
             writer.close();
             System.out.println("create " + file.getAbsolutePath() + " success !");
 
-
             // check cookies.txt
             File cookiesFile = new File(parentFile.getAbsolutePath() + File.separator + Constant.cookies + ".txt");
             if (!cookiesFile.exists()) {
@@ -119,13 +169,12 @@ public class Config {
         }
     }
 
-
     /**
-     * 指定 name 获取 map
+     * Converts specific properties from a Properties object to a Map.
      *
-     * @param config config
-     * @param names  names[]
-     * @return map<String, String>
+     * @param config The Properties object to convert
+     * @param names The property names to include in the map
+     * @return Map containing the specified properties
      */
     public static Map<String, String> configToMap(Properties config, String[] names) {
         Map<String, String> map = new HashMap<>();
@@ -143,13 +192,12 @@ public class Config {
         return map;
     }
 
-
     /**
-     * 将 path 路径中 指定配置文件转换为 map
+     * Loads and converts a configuration file to a Map.
      *
-     * @param path       路径
-     * @param configName 文件名
-     * @return map
+     * @param path The directory path containing the configuration file
+     * @param configName The name of the configuration file
+     * @return Map containing all properties from the configuration file
      */
     public static Map<String, String> configToMap(String path, String configName) {
         Properties config = getConfig(path, configName);
@@ -159,13 +207,13 @@ public class Config {
         return configToMap(config);
     }
 
-
     /**
-     * 从配置文件中检查cookie
+     * Gets cookie content, prioritizing cookies.txt over properties file.
      *
-     * @param configPath 路径 默认会读取 路径中的 cookies.txt 文件 作为 cookie 如果没有 在从 properties 中 读取
-     * @param properties config
-     * @return cookie
+     * @param configPath The directory path containing the cookie files
+     * @param properties The Properties object containing configuration
+     * @return The cookie string
+     * @throws RuntimeException if path is not absolute or cookie is invalid
      */
     private static String getCookieContent(String configPath, final Properties properties) {
         configPath = configPath.contains(cookieFile) ? configPath : (configPath + File.separator + cookieFile);
@@ -199,22 +247,34 @@ public class Config {
         return "";
     }
 
-
+    /**
+     * Validates a cookie string.
+     *
+     * @param cookie The cookie string to validate
+     * @param path The path where the cookie was read from (for error message)
+     * @throws RuntimeException if cookie is invalid
+     */
     private static void checkCookie(String cookie, String path) {
         if (cookie == null || cookie.length() == 0 || cookie.equalsIgnoreCase("cookie") || cookie.equalsIgnoreCase(Constant.cookies)) {
             throw new RuntimeException("place check your cookie ! in " + path);
         }
     }
 
+    /**
+     * Ensures a filename ends with .properties suffix.
+     *
+     * @param name The filename to check
+     * @return The filename with .properties suffix
+     */
     private static String check(String name) {
         return name.endsWith(config_suffix) ? name : (name + config_suffix);
     }
 
     /**
-     * 配置文件转换为map
+     * Converts all properties in a Properties object to a Map.
      *
-     * @param config 配置文件
-     * @return map
+     * @param config The Properties object to convert
+     * @return Map containing all non-empty properties
      */
     public static Map<String, String> configToMap(Properties config) {
         if (config == null) {
@@ -235,18 +295,4 @@ public class Config {
         }
         return map;
     }
-
-
-    private static final String defaultTemplate = "Host=leetcode.cn\n" +
-            "Referer=https://leetcode.cn\n" +
-            "Origin=https://leetcode.cn/\n" +
-            "Connection=keep-alive\n" +
-            "Cookie=Cookie\n" +
-            "Accept=*/*\n" +
-            "Sec-Fetch-Mode=cors\n" +
-            "Sec-Ch-Ua-Platform=Windows\n" +
-            "User-Agent=\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36 Edg/116.0.1938.62\";\n" +
-            "Accept-Language=zh-CN,zh;desc=0.9,en;desc=0.8,en-GB;desc=0.7,en-US;desc=0.6\n" +
-            "Cache-Control=max-age=0";
-
 }

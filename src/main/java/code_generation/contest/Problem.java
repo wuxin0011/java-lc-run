@@ -9,34 +9,67 @@ import java.io.File;
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Scanner;
-
 /**
+ * Utility class for creating and managing coding problem templates and directories.
+ * Provides methods for generating Java class files with associated test case files,
+ * and organizing them in directory structures.
  * @author: wuxin0011
- * @Description: 生成模板
+ * @since 1.0
  */
 public class Problem {
 
-
     private static final String ROOT_DIR = IoUtil.getProjectRootDir();
 
-
+    /**
+     * Creates a problem template with the given class file path, test case, and code template.
+     *
+     * @param classFilePath path to the Java class file to create
+     * @param testCase      test case content to include
+     * @param code          code template to use
+     */
     public static void createTemplate(String classFilePath, String testCase, String code) {
         createTemplate(new File(classFilePath), null, testCase, code);
     }
 
+    /**
+     * Creates a problem template with the given class file path.
+     *
+     * @param classFilePath path to the Java class file to create
+     */
     public static void createTemplate(String classFilePath) {
         createTemplate(new File(classFilePath));
     }
 
+    /**
+     * Creates a problem template with the given File object.
+     *
+     * @param classFilePath File object representing the Java class file to create
+     */
     public static void createTemplate(File classFilePath) {
         createTemplate(classFilePath, null);
     }
 
-
+    /**
+     * Handles text file creation and path processing.
+     *
+     * @param txtFile      path to the text file (can be null)
+     * @param name         base name to use if txtFile is null
+     * @param javaFilePath associated Java file
+     * @return processed text file path
+     */
     public static String handlerTxt(String txtFile, String name, File javaFilePath) {
         return handlerTxt(txtFile, name, javaFilePath, "");
     }
 
+    /**
+     * Handles text file creation with test case content.
+     *
+     * @param txtFile      path to the text file (can be null)
+     * @param name         base name to use if txtFile is null
+     * @param javaFilePath associated Java file
+     * @param testCase     test case content to write
+     * @return processed text file path
+     */
     public static String handlerTxt(String txtFile, String name, File javaFilePath, String testCase) {
         if (txtFile == null) {
             txtFile = name;
@@ -44,46 +77,66 @@ public class Problem {
         if (txtFile.endsWith(".txt")) {
             txtFile = txtFile.replace(".txt", "");
         }
-        String temp = IoUtil.isAbsolutePath(txtFile) ? (txtFile + ".txt") : javaFilePath.getParent() + File.separator + txtFile + ".txt";
+        String temp = IoUtil.isAbsolutePath(txtFile)
+                ? (txtFile + ".txt")
+                : javaFilePath.getParent() + File.separator + txtFile + ".txt";
+
         File file = IoUtil.createFile(temp);
         if (file == null) {
             return txtFile;
         }
+
         if (testCase != null && testCase.length() > 0) {
-            // IoUtil.writeContent(file, StringUtils.replaceIgnoreContent(testCase));
             IoUtil.writeContent(file, testCase);
         }
+
         if (javaFilePath != null && file.getAbsolutePath().contains(javaFilePath.getParent())) {
             txtFile = "." + file.getAbsolutePath().replace(javaFilePath.getParent(), "").replace("\\", "\\\\");
             txtFile = txtFile.replace(".\\\\", "");
         }
+
         if (txtFile.endsWith(".txt")) {
             txtFile = txtFile.replace(".txt", "");
         }
         return txtFile;
     }
 
+    /**
+     * Creates a problem template with the given File object and text file path.
+     *
+     * @param classFilePath File object representing the Java class file
+     * @param txtFile       path to the associated text file
+     */
     public static void createTemplate(File classFilePath, String txtFile) {
         createTemplate(classFilePath, txtFile, "", "");
     }
 
-
-    public static void createTemplate(File classFilePath, String txtFile, String testCase, String classTempalte) {
+    /**
+     * Creates a complete problem template with all components.
+     *
+     * @param classFilePath  File object representing the Java class file
+     * @param txtFile        path to the associated text file
+     * @param testCase       test case content
+     * @param classTemplate  code template content
+     */
+    public static void createTemplate(File classFilePath, String txtFile, String testCase, String classTemplate) {
         try {
             String name = classFilePath.getName().replace(".java", "");
             txtFile = handlerTxt(txtFile, name, classFilePath, testCase);
-            if (StringUtils.isEmpty(classTempalte)) {
+
+            if (StringUtils.isEmpty(classTemplate)) {
                 String packageInfo = ReflectUtils.getPackageInfo(classFilePath.getAbsolutePath());
-                classTempalte = String.format(pattern, packageInfo, name, name, txtFile);
+                classTemplate = String.format(pattern, packageInfo, name, name, txtFile);
             }
-            IoUtil.writeContent(classFilePath, classTempalte);
+
+            IoUtil.writeContent(classFilePath, classTemplate);
             System.out.println(classFilePath + "  create success !\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-
+    // Default class template pattern
     final static String pattern = "package %s;\n" +
             "\n" +
             "import code_generation.utils.IoUtil;\n" +
@@ -102,24 +155,48 @@ public class Problem {
             "    }\n" +
             "}\n";
 
+    /**
+     * Creates a directory name from an ID (0-25).
+     *
+     * @param id      the directory ID (0-25)
+     * @param isUpper whether to use uppercase letters
+     * @return single-character directory name
+     * @throws RuntimeException if ID is out of range
+     */
     public static String createDir(int id, boolean isUpper) {
         if (id < 0 || id >= 26) {
-            throw new RuntimeException("place input 0-25 number");
+            throw new RuntimeException("Please input a number between 0-25");
         }
         char c = isUpper ? (char) (id + 'A') : (char) (id + 'a');
         return String.valueOf(c);
     }
 
+    /**
+     * Creates a directory path by combining a base directory and an ID-based subdirectory.
+     *
+     * @param id      the directory ID (0-25)
+     * @param isUpper whether to use uppercase letters
+     * @param dir     the base directory path
+     * @return combined directory path
+     */
     public static String createDir(int id, boolean isUpper, String dir) {
         return dir + File.separatorChar + createDir(id, isUpper);
     }
 
+    /**
+     * Creates multiple problem directories and templates.
+     *
+     * @param problems number of problems to create
+     * @param dir      base directory path
+     * @throws RuntimeException if directory exists but is not a directory
+     */
     public static void createProblems(int problems, String dir) {
         File file = new File(dir);
         if (file.exists() && !file.isDirectory()) {
-            throw new RuntimeException("file is exists and not is Directory ");
+            throw new RuntimeException("File exists and is not a directory");
         }
         if (!file.exists()) file.mkdirs();
+
         for (int i = 0; i < problems; i++) {
             try {
                 create(i, file.getAbsolutePath());
@@ -127,23 +204,37 @@ public class Problem {
                 e.printStackTrace();
             }
         }
-
     }
 
-
+    /**
+     * Creates a problem from ProblemInfo object.
+     *
+     * @param info ProblemInfo containing all creation parameters
+     */
     public static void create(ProblemInfo info) {
         File classFile = IoUtil.createFile(info.getJavaFile());
         createTemplate(classFile, info.getTxtFile(), info.getTestCase(), ClassTemplate.getTemplate(info.getClassTemplate()));
     }
 
-
+    /**
+     * Creates a problem with Java and text files relative to a class location.
+     *
+     * @param javaFilePath path to Java file
+     * @param txtFilePath  path to text file
+     * @param c            class used for relative path resolution
+     */
     public static void create(String javaFilePath, String txtFilePath, Class<?> c) {
         javaFilePath = IoUtil.wrapperAbsolutePath(c, javaFilePath);
         txtFilePath = IoUtil.wrapperAbsolutePath(c, txtFilePath);
         create(javaFilePath, txtFilePath);
     }
 
-
+    /**
+     * Creates a problem with absolute Java and text file paths.
+     *
+     * @param javaFilePath absolute path to Java file
+     * @param txtFilePath  absolute path to text file
+     */
     public static void create(String javaFilePath, String txtFilePath) {
         File classFile = IoUtil.createFile(javaFilePath);
         if (classFile != null) {
@@ -151,6 +242,13 @@ public class Problem {
         }
     }
 
+    /**
+     * Gets a File object for a problem class file based on ID and path.
+     *
+     * @param id   problem ID (0-25)
+     * @param path base directory path
+     * @return File object for the Java file
+     */
     public static File getClassFile(int id, String path) {
         File dirFile = new File(createDir(id, false, path));
         if (!dirFile.exists()) dirFile.mkdir();
@@ -158,20 +256,39 @@ public class Problem {
         return IoUtil.createFile(prefix + ".java");
     }
 
+    /**
+     * Creates a basic problem with ID and path.
+     *
+     * @param id   problem ID
+     * @param path base directory path
+     */
     public static void create(int id, String path) {
-        // create dir
         create(id, path, "", "");
     }
 
-
+    /**
+     * Creates a problem with test case and code content.
+     *
+     * @param id       problem ID
+     * @param path     base directory path
+     * @param testCase test case content
+     * @param code     code template content
+     */
     public static void create(int id, String path, String testCase, String code) {
-        // create dir
         File classFile = getClassFile(id, path);
         if (classFile != null) {
             createTemplate(classFile.getAbsolutePath(), testCase, code);
         }
     }
 
+    /**
+     * Creates a problem with a ClassTemplate object.
+     *
+     * @param id            problem ID
+     * @param path          base directory path
+     * @param testCase      test case content
+     * @param classTemplate ClassTemplate object for code generation
+     */
     public static void create(int id, String path, String testCase, ClassTemplate classTemplate) {
         File classFile = getClassFile(id, path);
         String packageInfo = ReflectUtils.getPackageInfo(classFile.getAbsolutePath());
@@ -180,7 +297,14 @@ public class Problem {
         createTemplate(classFile.getAbsolutePath(), testCase, code);
     }
 
-
+    /**
+     * Creates a custom contest with current date in the directory structure.
+     *
+     * @param problems   number of problems
+     * @param dirPrefix  directory prefix
+     * @param dirName    base directory name
+     * @param c          class for path resolution
+     */
     public static void customContest(int problems, String dirPrefix, String dirName, Class<?> c) {
         LocalDate now = LocalDate.now();
         int year = now.getYear();
@@ -189,18 +313,25 @@ public class Problem {
         customContest(problems, year, month, day, dirPrefix, dirName, c);
     }
 
+    /**
+     * Interactive method to create a custom contest with user input.
+     *
+     * @param c class for path resolution
+     * @throws RuntimeException if invalid input is provided multiple times
+     */
     public static void customContest(Class<?> c) {
-        Objects.requireNonNull(c, "class not allow null");
+        Objects.requireNonNull(c, "Class parameter cannot be null");
         Scanner sc = new Scanner(System.in);
         int problems = 0;
         String dirPrefix = "";
         String dir = "";
         int count = 0;
+
         while (true) {
             if (count > 10) {
                 break;
             }
-            System.out.print("place input a valid number as problems : ");
+            System.out.print("Please input a valid number as problems: ");
             try {
                 problems = sc.nextInt();
                 if (problems <= 0) {
@@ -210,29 +341,31 @@ public class Problem {
                 break;
             } catch (Exception ignored) {
                 count++;
-                sc.next(); // 清空输入缓冲区
+                sc.next(); // Clear input buffer
             }
         }
+
         if (count > 10) {
-            throw new RuntimeException("You only input error max 10 times ");
+            throw new RuntimeException("Maximum input attempts (10) exceeded");
         }
-        System.out.print("place input a valid string as dirPrefix : ");
+
+        System.out.print("Please input a valid string as dirPrefix: ");
         dirPrefix = sc.next();
-        System.out.print("place input a valid string as dir : ");
+        System.out.print("Please input a valid string as dir: ");
         dir = sc.next();
         Problem.customContest(problems, dirPrefix, dir, c);
     }
 
-
     /**
-     * 可能又其他比赛请自定义
+     * Creates a custom contest with full date specification.
      *
-     * @param problems  题目多少
-     * @param year      年份
-     * @param month     月份
-     * @param dirPrefix 前缀
-     * @param dirName   目录名
-     * @param c         生成在那个目录下？ 传入class会自动生成在对应目录下
+     * @param problems   number of problems
+     * @param year       year for directory naming
+     * @param month      month for directory naming
+     * @param day        day for directory naming
+     * @param dirPrefix  directory prefix
+     * @param dirName    base directory name
+     * @param c          class for path resolution (defaults to LCContest if null)
      */
     public static void customContest(int problems, int year, int month, int day, String dirPrefix, String dirName, Class<?> c) {
         if (c == null) {
@@ -242,6 +375,7 @@ public class Problem {
             dirPrefix = dirPrefix + "_";
         }
         dirName = IoUtil.wrapperAbsolutePath(c, dirName);
+
         StringBuilder sb = new StringBuilder();
         sb.append(dirName);
         sb.append(File.separator);
@@ -249,6 +383,7 @@ public class Problem {
         sb.append(year).append("_");
         sb.append(month).append("_").append(day);
         sb.append(File.separator);
+
         String wrapperDir = sb.toString();
         createProblems(problems, wrapperDir);
     }

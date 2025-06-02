@@ -6,121 +6,199 @@ import java.util.Arrays;
 import java.util.StringJoiner;
 
 /**
+ * A container class that holds parsed code information including class name,
+ * method signatures, and constructor detection status. Used in code template processing.
  * @author: wuxin0011
- * @Description: 代码块解析结果
+ * @since 1.0
  */
 public class ParseCodeInfo {
 
+    /**
+     * Special identifier used to mark constructor methods.
+     */
     public final static String ConstructorClass = "__ConstructorClass__";
 
-
-    // 原始字符串
-    // 可能有其他添加补充
-    // 因此需要保留原始字符串
+    /**
+     * The original unprocessed code string.
+     */
     private String origin;
 
-    // 匹配到的类名
-    // 如果是构造类这个类名可能会使用到
+    /**
+     * The detected class name from parsed code.
+     */
     private String className;
 
-
-    // 匹配到的方法名
-    // 对于非构造类的
-    // 这个方法名为后续反射调用
+    /**
+     * The detected method name from parsed code.
+     * For constructor classes, this will be set to {@link #ConstructorClass}.
+     */
     private String methodName;
 
-
-    // 匹配到除了类在在内的所有方法
-    // example
-    // class Solution {
-    //   public void f1(){}
-    //   public void f2(){}
-    // }
-
-    // 期望匹配结果是
-    // public f1(){} public void f2(){}
+    /**
+     * The extracted method signatures (excluding class declaration).
+     * Example for code:
+     * <pre>
+     * class Solution {
+     *   public void f1(){}
+     *   public void f2(){}
+     * }
+     * </pre>
+     * Would store:
+     * <pre>"public void f1(){} public void f2(){}"</pre>
+     */
     private String method;
 
-
-    // 是否是构造类 通过类名来判断或者自定义实现
-    // 当 noConstructorName 不为空 以 这个为表标准
+    /**
+     * Flag indicating whether the parsed class is a constructor class.
+     * Determined by checking against {@link #noConstructorNames}.
+     */
     private boolean isConstructor;
 
-
-    // 如果不是构造类的方法名
-    // 期望方法名
-    // 使用数组可能会有其他情况
+    /**
+     * Array of class names that should be treated as non-constructor classes.
+     */
     private String[] noConstructorNames;
 
+    /**
+     * Constructs a new ParseCodeInfo with specified non-constructor class names.
+     *
+     * @param noConstructorNames varargs of class names that should not be
+     *                           treated as constructor classes
+     */
     public ParseCodeInfo(String... noConstructorNames) {
         this.noConstructorNames = noConstructorNames;
     }
 
-
+    /**
+     * Gets the original unprocessed code string.
+     *
+     * @return the original code string
+     */
     public String getOrigin() {
         return origin;
     }
 
+    /**
+     * Sets the original code string.
+     *
+     * @param origin the original code string to set
+     */
     public void setOrigin(String origin) {
         this.origin = origin;
     }
 
+    /**
+     * Gets the detected class name.
+     *
+     * @return the class name
+     */
     public String getClassName() {
         return className;
     }
 
+    /**
+     * Sets the class name and automatically determines constructor status
+     * by checking against the non-constructor names list.
+     *
+     * @param className the class name to set
+     */
     public void setClassName(String className) {
         this.className = className;
         if (this.noConstructorNames != null && this.noConstructorNames.length > 0) {
-            this.isConstructor = true; //  是构造类 ？
+            this.isConstructor = true; // Assume constructor by default
             for (String name : noConstructorNames) {
                 if (!StringUtils.isEmpty(name) && name.equals(className)) {
-                    this.isConstructor = false; // 不是构造类
+                    this.isConstructor = false; // Found in non-constructor list
                     break;
                 }
             }
         } else {
-            this.isConstructor = false; // 默认
+            this.isConstructor = false;
         }
     }
 
+    /**
+     * Gets the method name. For constructor classes, returns {@link #ConstructorClass}.
+     *
+     * @return the method name or constructor marker
+     */
     public String getMethodName() {
         return methodName;
     }
 
+    /**
+     * Sets the method name. Automatically converts to {@link #ConstructorClass}
+     * if this is a constructor class.
+     *
+     * @param methodName the method name to set
+     */
     public void setMethodName(String methodName) {
-        this.methodName = isConstructor ? ConstructorClass :  methodName;
-
+        this.methodName = isConstructor ? ConstructorClass : methodName;
     }
 
+    /**
+     * Gets the extracted method signatures.
+     *
+     * @return the method signatures string
+     */
     public String getMethod() {
         return method;
     }
 
+    /**
+     * Sets the method signatures string.
+     *
+     * @param method the method signatures to set
+     */
     public void setMethod(String method) {
         this.method = method;
     }
 
+    /**
+     * Checks if this is a constructor class.
+     *
+     * @return true if constructor class, false otherwise
+     */
     public boolean isConstructor() {
         return isConstructor;
     }
 
+    /**
+     * Manually sets the constructor status.
+     *
+     * @param constructor true to mark as constructor class, false otherwise
+     */
     public void setConstructor(boolean constructor) {
         isConstructor = constructor;
     }
 
+    /**
+     * Gets the array of non-constructor class names.
+     *
+     * @return array of non-constructor class names
+     */
     public String[] getNoConstructorName() {
         return noConstructorNames;
     }
 
+    /**
+     * Sets the non-constructor class names.
+     *
+     * @param noConstructorNames varargs of non-constructor class names
+     */
     public void setNoConstructorName(String... noConstructorNames) {
         this.noConstructorNames = noConstructorNames;
     }
 
+    /**
+     * Returns a string representation of the parsed code information,
+     * excluding the original code for readability.
+     *
+     * @return formatted string containing class information
+     */
     @Override
     public String toString() {
         return new StringJoiner(", ", ParseCodeInfo.class.getSimpleName() + "[", "]")
-                // .add("origin='" + origin + "'")
                 .add("className='" + className + "'")
                 .add("methodName='" + methodName + "'")
                 .add("method='" + method + "'")

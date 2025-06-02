@@ -15,55 +15,95 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @author: wuxin0011
- * @Description: 处理输入输出
+ * Utility class providing various helper methods for I/O operations, file handling, and testing utilities.
+ * This class is designed to assist with tasks such as reading files, writing content, validating methods,
+ * and performing comparisons between methods or constructors. It also includes methods for path resolution
+ * and content parsing.
  */
 
-@SuppressWarnings("all")
 public class IoUtil {
 
 
     /**
-     * 默认方法名
+     * Represents the default method name used within the {@code IoUtil} class.
+     * This constant is utilized as a fallback or placeholder value when a specific
+     * method name is not provided or applicable. The value is set to "null",
+     * indicating the absence of a valid method name. This can be useful in scenarios
+     * where method resolution logic needs to handle cases where no explicit method
+     * name is defined.
      */
     public static final String DEFAULT_METHOD_NAME = "null";
 
 
+
     /**
-     * 空类型或者不填充参数
+     * Represents a constant string value "null" used to indicate either a void return type
+     * or the presence of arguments in method validation and invocation contexts.
+     * This constant is primarily utilized within utility methods to handle scenarios where
+     * methods may have no return value or require argument-based comparisons during testing.
      */
     public static final String VOID_OR_ARGS = "null";
 
+
     /**
-     * 默认文件名
+     * Represents the default file name used for reading input data within the utility.
+     * This constant defines the standard file name "in.txt" which is expected to be present
+     * in the context where file reading operations are performed. It serves as a fallback
+     * or default option when no specific file name is provided explicitly.
      */
     public static final String DEFAULT_READ_FILE = "in.txt";
 
 
+
     /**
-     * 默认是否开启 ## 解析文件
+     * Indicates whether long content support is enabled by default.
+     * When set to true, it allows the processing of extended content features;
+     * when false, such features are disabled. This flag primarily influences
+     * methods that handle file reading or content parsing where extended content
+     * may be involved.
      */
     public static final boolean DEFAULT_SUPPORT_LONG_CONTENT = false;
 
 
+
     /**
-     * 是否严格相等！
-     * 默认 true
+     * Indicates whether strict equality is enforced during comparisons or validations.
+     * When set to true, the comparison will require exact matches, including order and type,
+     * whereas a false value allows for more lenient matching criteria.
      */
     public static final boolean IS_STRICT_EQUAL = true;
 
+
     /**
-     * 如果想使用自定义路径, 如 main\java => {"main"，"java"}
+     * Represents the default directory roots used as a base path for file operations.
+     * These roots are typically utilized to construct or locate project directories,
+     * especially in contexts where source code files are organized under specific folder hierarchies.
+     * The array defines a sequence of directory names that form the path structure.
      */
     public static final String[] DEFAULT_ROOTS = {"src","main", "java"};
 
 
+    /**
+     * Represents the root directory of the project.
+     * This variable is used to store the absolute path to the root directory, which serves as the base for file operations and resource management.
+     * The value should be initialized appropriately before any operations that depend on it to ensure correct behavior.
+     * If not set, it defaults to "null", indicating that the root directory has not been configured.
+     */
     private static String ROOT_DIR = "null";
 
     static {
         getProjectRootDir();
     }
 
+    /**
+     * Retrieves the project root directory as a string.
+     * If the root directory has already been determined and stored in {@code ROOT_DIR},
+     * it will be returned directly. Otherwise, the method constructs the root directory
+     * path by appending the values from {@code DEFAULT_ROOTS} separated by the system's
+     * file separator. If {@code DEFAULT_ROOTS} is null, a runtime exception is thrown.
+     *
+     * @return the project root directory as a string
+     */
     public static String getProjectRootDir() {
         if (!(ROOT_DIR == null || "null".equals(ROOT_DIR))) {
             return ROOT_DIR;
@@ -82,43 +122,110 @@ public class IoUtil {
     }
 
 
+    /**
+     * Invokes the test utility with default method name and file reading settings.
+     * This method serves as a simplified entry point for testing utilities,
+     * internally delegating to an overloaded version of {@code testUtil} with
+     * predefined default values for method name and file reading options.
+     *
+     * @param c the Class object representing the type to be tested
+     */
     public static <T> void testUtil(Class<T> c) {
         testUtil(c, DEFAULT_METHOD_NAME, DEFAULT_READ_FILE);
     }
 
 
+    /**
+     * Invokes the test utility with specified parameters for testing a class.
+     * This method acts as a bridge to the core testing functionality, allowing
+     * customization of the method name, file name, and long content handling.
+     * Internally, it delegates to an overloaded version of {@code testUtil} with
+     * an additional strict equality parameter.
+     *
+     * @param c the Class object representing the type to be tested
+     * @param fileName the name of the file to be used for testing
+     * @param openLongContent a boolean flag indicating whether to enable parsing of long content
+     */
     public static <T> void testUtil(Class<T> c, String fileName, boolean openLongContent) {
         testUtil(c, DEFAULT_METHOD_NAME, fileName, openLongContent);
     }
 
 
+    /**
+     * Invokes the test utility with a specified class and a flag for handling long content.
+     * This method serves as a simplified entry point for testing utilities, internally
+     * delegating to an overloaded version of {@code testUtil} with default values for
+     * method name and file reading options.
+     *
+     * @param c the Class object representing the type to be tested
+     * @param openLongContent a boolean flag indicating whether to enable parsing of long content
+     */
     public static <T> void testUtil(Class<T> c, boolean openLongContent) {
         testUtil(c, DEFAULT_METHOD_NAME, DEFAULT_READ_FILE, openLongContent);
     }
 
 
+    /**
+     * Invokes the test utility with a specified class, method name, and file name.
+     * This method serves as an intermediary for testing utilities, allowing customization
+     * of the method name and the file used for testing. It internally delegates to another
+     * overloaded version of {@code testUtil} with a default value for long content handling.
+     *
+     * @param c the Class object representing the type to be tested
+     * @param methodName the name of the method to be invoked during testing;
+     *                   if set to a default value, it automatically invokes a method other than "main"
+     */
     public static <T> void testUtil(Class<T> c, String methodName) {
         testUtil(c, methodName, DEFAULT_READ_FILE);
     }
 
 
+    /**
+     * Invokes the test utility with specified parameters for testing a class.
+     * This method allows customization of the method name, file name, and long content handling.
+     * Internally, it delegates to an overloaded version of {@code testUtil} with a default value
+     * for strict equality comparison.
+     *
+     * @param c the Class object representing the type to be tested
+     * @param methodName the name of the method to be invoked during testing;
+     *                   if set to a default value, it automatically invokes a method other than "main"
+     * @param fileName the name of the file to be used for testing
+     */
     public static <T> void testUtil(Class<T> c, String methodName, String fileName) {
         testUtil(c, methodName, fileName, DEFAULT_SUPPORT_LONG_CONTENT);
     }
 
+    /**
+     * Invokes the test utility with specified parameters for testing a class.
+     * This method acts as a bridge to the core testing functionality, allowing
+     * customization of the method name, file name, and long content handling.
+     * Internally, it delegates to an overloaded version of {@code testUtil} with
+     * a default value for strict equality comparison.
+     *
+     * @param c the Class object representing the type to be tested
+     * @param methodName the name of the method to be invoked during testing;
+     *                   if set to a default value, it automatically invokes a method other than "main"
+     * @param fileName the name of the file to be used for testing
+     * @param openLongContent a boolean flag indicating whether to enable parsing of long content
+     */
     public static <T> void testUtil(Class<T> c, String methodName, String fileName, boolean openLongContent) {
         testUtil(c, methodName, fileName, openLongContent, IS_STRICT_EQUAL);
     }
 
 
+
     /**
-     * 对拍核心方法
+     * Invokes the test utility with comprehensive parameters for testing a class.
+     * This method performs validation of the specified method within the provided class,
+     * using input data from a file. It supports handling of long content, strict equality
+     * checks, and constructor-based validation.
      *
-     * @param src             反射的类
-     * @param methodName      方法名 但传入默认的时候 自动调用 除 "main" 方法外的一个方法，唯有只有一个其他方法适用
-     * @param fileName        读取文件名
-     * @param openLongContent 开启##解析
-     * @param isStrict        是否开启严格相等 如果不开启元素顺序，希望 为 false
+     * @param src the Class object representing the type to be tested
+     * @param methodName the name of the method to be invoked during testing;
+     *                   if set to a default value, it automatically invokes a method other than "main"
+     * @param fileName the name of the file containing test input data
+     * @param openLongContent a boolean flag indicating whether to enable parsing of long content
+     * @param isStrict a boolean flag indicating whether strict equality checks should be applied
      */
     public static <T> void testUtil(Class<T> src, String methodName, String fileName, boolean openLongContent, boolean isStrict) {
         check(src, methodName, fileName);
@@ -152,7 +259,19 @@ public class IoUtil {
     }
 
 
-    // 构造类函数对拍
+
+    /**
+     * Validates the constructor and methods of a given class using provided test data.
+     * This method processes input data in groups of three lines: method names, arguments, and expected results.
+     * It performs validation by comparing actual outputs with expected outputs for each method call.
+     * Errors are collected and reported at the end of execution.
+     *
+     * @param src the Class object representing the class to be validated
+     * @param inputList a list of strings containing test data in groups of three lines:
+     *                  method names, arguments, and expected results
+     * @param methodName the name of the method to be validated (not directly used in the method)
+     * @param isStrict a boolean flag indicating whether strict validation should be applied
+     */
     public static void handlerConstructorValid(Class<?> src, List<String> inputList, String methodName, boolean isStrict) {
         String[] names = null, args = null, expect = null;
         // 是否是测试阶段
@@ -289,6 +408,16 @@ public class IoUtil {
         }
     }
 
+    /**
+     * Invokes the specified constructor with the provided input arguments and returns the instantiated object.
+     * This method handles both parameterless constructors and constructors requiring parameters.
+     * It processes the input list to match the constructor's parameter types, parsing each argument accordingly.
+     *
+     * @param constructor the constructor to be invoked, which may have zero or more parameters
+     * @param inputList a list of strings representing the input arguments to be parsed and passed to the constructor
+     * @param aclass the class associated with the context in which the constructor is being invoked
+     * @return the instantiated object if successful, or null if an exception occurs during instantiation or argument parsing
+     */
     public static Object handlerConstructorMethod(Constructor<?> constructor, List<String> inputList, Class<?> aclass) {
         Object obj = null;
         Class<?>[] parameterTypes = constructor.getParameterTypes();
@@ -335,13 +464,14 @@ public class IoUtil {
 
 
     /**
-     * 对拍核心方法
-     * @param obj 对象
-     * @param method 方法
-     * @param inputList 输入输出
-     * @param isStrict 是否要求顺序
-     * @param newObj 每次执行是否创建新对象
-     * @return
+     * Validates and tests the execution of a given method against a list of input data.
+     * This method performs parameter validation, method invocation, and result comparison.
+     * It supports both static and instance methods, and can handle void return types by
+     * analyzing modified parameters. Errors and exceptions during execution are tracked,
+     * and the method provides feedback on test results.
+     *
+     * @param obj       The object on which the method is invoked. Must not be null.
+     *                  If the method is static, this parameter is ignored.
      */
     public static boolean startValid(Object obj, Method method, List<String> inputList, boolean isStrict, boolean newObj) {
         Objects.requireNonNull(obj, "obj is null");
@@ -529,146 +659,20 @@ public class IoUtil {
     }
 
 
-    // TODO 无尽对拍
+
 
     /**
-     * 通过调用两个函数一般认为一个是暴力方法 一个是优化后的方法， 暴力方法容易书写，优化后的方法但是数据量太小不太容易比较 为此写一个测试方法
-     * <p>
-     * 通过输入fileName方法 可以试试特殊的测试用例
+     * Searches for a method with the specified name within the given class.
+     * If the provided method name matches certain predefined values (e.g., "main" or DEFAULT_METHOD_NAME),
+     * the method attempts to identify an alternative method name dynamically.
+     * The method iterates through all declared methods of the class, excluding "main" and lambda methods,
+     * and returns the first matching method after setting it accessible.
      *
-     * @param A                A 类
-     * @param methodNameA      方法A
-     * @param B                B 类
-     * @param methodNameB      方法B
-     * @param maxCount         最大数据量
-     * @param minRunTimes      最少执行次数
-     * @param fileName         如果文件不为空 可以读取数据后在比较 但是读取内容不能有期望值
-     * @param ifVoidCompareArg 如果没有返回值 将会通过那个参数来比较
+     * @param src the class in which the method is to be searched
+     * @param methodName the name of the method to find; if it matches "main" or DEFAULT_METHOD_NAME,
+     *                   the method will attempt to resolve an alternative name
+     * @return the found method if it exists and matches the criteria; null if no such method is found
      */
-    public static void upd(Class<?> A, String methodNameA, Class<?> B, String methodNameB, int maxCount, int minRunTimes, String fileName, int ifVoidCompareArg) {
-        boolean isTest = true;
-        if (isTest) {
-            System.out.println("this api is test ...");
-        }
-        if (A == null && B == null) {
-            throw new NullPointerException("class type not allow null");
-        }
-        if (A == null && B != null) {
-            A = B;
-        } else if (B == null && A != null) {
-            B = A;
-        }
-        Method m1 = findMethodName(A, methodNameA);
-        if (m1 == null) {
-            throw new NullPointerException();
-        }
-        Method m2 = findMethodName(B, methodNameB);
-        if (m2 == null) {
-            throw new NullPointerException();
-        }
-        if (A == B && methodNameB.equals(methodNameA)) {
-            System.out.println("class type and method name is same");
-            return;
-        }
-        Class<?>[] p1 = m1.getParameterTypes();
-        Class<?>[] p2 = m2.getParameterTypes();
-
-
-        int L = p1.length;
-
-        String[] argsType1 = buildArgsType(A, p1, m1);
-        String[] argsType2 = buildArgsType(B, p2, m2);
-        if (!TestUtils.deepEqual(argsType1, argsType2, true)) {
-            throw new RuntimeException("args type not equal");
-        }
-        String[] argsType = Arrays.copyOf(argsType1, L);
-
-
-        Object obj1 = null, obj2 = null; // 调用对象
-
-        boolean isVoid = m1.getReturnType().getSimpleName().equals("void");
-
-
-        boolean isStatic1 = Modifier.isStatic(m1.getModifiers());
-        boolean isStatic2 = Modifier.isStatic(m2.getModifiers());
-        Object[] args = new Object[L];
-        for (int i = 0; i < 10000; i++) {
-            buildParamaters(argsType, args);
-            Object r = invokeObjectMethod(A, m1, args, ifVoidCompareArg, isStatic1, isVoid);
-            Object e = invokeObjectMethod(B, m2, args, ifVoidCompareArg, isStatic1, isVoid);
-            if (r == e) {
-                continue;
-            }
-            if (r == null || e == null) {
-                throw new NullPointerException();
-            }
-
-            // deepEquals() // TODO 比较结果是否一致
-        }
-    }
-
-    public static Object invokeObjectMethod(Class<?> src, Method m, Object[] args, int ifVoidCompareArgs, boolean isStatic, boolean isVoid) {
-        Object obj = null;
-        Object[] curArgs = Arrays.copyOf(args, args.length);
-        if (!isStatic) {
-            obj = loadObj(src);
-        }
-        if (!isStatic && obj == null) {
-            throw new NullPointerException("object is null");
-        }
-        Object result = null;
-        try {
-            result = m.invoke(obj, curArgs);
-        } catch (Exception ignore) {
-
-        }
-
-        if (isVoid) {
-            if (ifVoidCompareArgs >= curArgs.length) {
-                throw new IndexOutOfBoundsException();
-            }
-            return curArgs[ifVoidCompareArgs];
-        }
-        return result;
-    }
-
-    private static String[] buildArgsType(Class<?> a, Class<?>[] p, Method m) {
-        Objects.requireNonNull(a, "class is null");
-        Objects.requireNonNull(p, "parameter type is null");
-        Objects.requireNonNull(m, "method is null");
-        String[] argsType = new String[p.length + 1];
-        for (int i = 0; i <= p.length; i++) {
-            String typeName = i <= p.length - 1 ? p[i].getSimpleName() : m.getReturnType().getSimpleName();
-            if (typeName.contains("ArrayList") || typeName.contains("List")) {
-                typeName = IoUtil.findListReturnTypeMethod(a, m.getName(), typeName, i == p.length ? -1 : i, p.length);
-                typeName = typeName.replace("ArrayList", "List");
-            }
-            argsType[i] = typeName;
-        }
-        return argsType;
-    }
-
-
-    public static Object loadObj(Class<?> src) {
-        try {
-            return src.newInstance();
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-
-    public static void buildParamaters(String[] parameterTypes, Object[] args) {
-        int mxCnt = 10000000;
-        int ifVoidCompare = 0;
-        // TODO 根据参数类型构造数据
-        // TODO 由于数据类型众多 仅仅是指出数据量是不正确的 后面再说吧该方法😂
-        for (int i = 0; i < parameterTypes.length; i++) {
-            Object o = null;
-            args[i] = o;
-        }
-    }
-
     public static Method findMethodName(Class<?> src, String methodName) {
         boolean find = false;
         Method[] methods = src.getDeclaredMethods();
@@ -702,19 +706,57 @@ public class IoUtil {
     }
 
 
+    /**
+     * Reads the contents of a file and returns them as a list of strings.
+     * The method constructs the absolute path to the file using the provided class and filename,
+     * and processes the file based on the specified flag for long content handling.
+     *
+     * @param c the Class object used to determine the origin for building the absolute path
+     * @param filename the name of the file to be read
+     * @param openLongContent a boolean flag indicating whether to handle long content in the file
+     * @return a List of Strings representing the lines of the file
+     */
     public static List<String> readFile(Class<?> c, String filename, boolean openLongContent) {
         return readFile(buildAbsolutePath(ReflectUtils.loadOrigin(c)), filename, openLongContent);
     }
 
+    /**
+     * Reads the contents of a file into a list of strings.
+     * The file is located using the provided class and filename.
+     *
+     * @param c the Class object used to determine the base path for the file
+     * @param filename the name of the file to be read
+     * @return a List of Strings containing the lines of the file
+     */
     public static List<String> readFile(Class<?> c, String filename) {
         return readFile(buildAbsolutePath(ReflectUtils.loadOrigin(c)), filename, false);
     }
 
+    /**
+     * Reads the contents of a file from the specified path and file name.
+     *
+     * @param path the directory path where the file is located
+     * @param fileName the name of the file to be read
+     * @return a list of strings representing the lines in the file
+     */
     public static List<String> readFile(String path, String fileName) {
         return readFile(path, fileName, false);
     }
 
 
+    /**
+     * Reads the content of a file and returns it as a list of strings.
+     * If the file does not exist, an error message is printed and null is returned.
+     * If the file exists, its content is read line by line unless the file is identified
+     * as containing long content, in which case a specialized parsing method is invoked.
+     *
+     * @param path the directory path where the file is located
+     * @param fileName the name of the file to be read
+     * @param openLongContent a flag indicating whether the file contains long content
+     *                        that requires specialized parsing
+     * @return a list of strings representing the lines of the file,
+     *         or null if the file does not exist or an error occurs during reading
+     */
     public static List<String> readFile(String path, String fileName, boolean openLongContent) {
         File file = new File(path + fileName);
         if (!file.exists()) {
@@ -747,21 +789,48 @@ public class IoUtil {
     }
 
 
+    /**
+     * Constructs the absolute path for a given class by appending its package path to the base absolute path.
+     * The resulting path ends with the system's file separator.
+     *
+     * @param c the Class object for which the absolute path is to be constructed
+     * @return the constructed absolute path as a String, including the package path and file separator
+     */
     public static <T> String buildAbsolutePath(Class<T> c) {
         return buildAbsolutePath() + getPackagePath(c) + File.separator;
     }
 
 
+    /**
+     * Constructs and returns the absolute path by utilizing the project's root directory.
+     * This method internally calls buildAbsolutePath with the root directory obtained
+     * from getProjectRootDir as its parameter.
+     *
+     * @return the absolute path derived from the project's root directory
+     */
     public static String buildAbsolutePath() {
 
         return buildAbsolutePath(getProjectRootDir());
     }
 
+    /**
+     * Constructs an absolute path by combining the working directory with the provided base directory.
+     *
+     * @param baseDir the base directory to be appended to the working directory
+     * @return the constructed absolute path as a String
+     */
     public static String buildAbsolutePath(String baseDir) {
         String wordDir = getWorkDir();
         return wordDir + baseDir;
     }
 
+    /**
+     * Returns the package path of the given class as a string with dots replaced by the system's file separator.
+     *
+     * @param c the Class object whose package path is to be retrieved
+     * @return the package path of the class in the format suitable for file system representation,
+     *         or an empty string if the class does not belong to any package
+     */
     public static <T> String getPackagePath(Class<T> c) {
         Package pkg = c.getPackage();
         if(pkg == null) return "";
@@ -777,6 +846,14 @@ public class IoUtil {
     }
 
 
+    /**
+     * Retrieves the current working directory of the application.
+     * This method first attempts to obtain the working directory using the system property "user.dir".
+     * If the property is not available, is "null", or is an empty string, it falls back to determining
+     * the absolute path of the current directory via a newly instantiated File object.
+     *
+     * @return the absolute path of the current working directory as a String
+     */
     public static String getWorkDir() {
         String dir = System.getProperty("user.dir");
         if (dir == null || "null".equals(dir) || dir.length() == 0) {
@@ -786,12 +863,29 @@ public class IoUtil {
     }
 
 
+    /**
+     * Validates that the provided parameters are not null.
+     * This method checks the source class, method name, and file name to ensure
+     * they are non-null. If any parameter is null, a NullPointerException is thrown
+     * with an appropriate error message.
+     *
+     * @param src the source class object to be validated; must not be null
+     * @param methodName the name of the method to be validated; must not be null
+     * @param fileName the name of the file to be validated; must not be null
+     */
     public static void check(Class<?> src, String methodName, String fileName) {
         Objects.requireNonNull(src, "className not null");
         Objects.requireNonNull(methodName, "methodName not null");
         Objects.requireNonNull(fileName, "fileName  not null");
     }
 
+    /**
+     * Closes the given AutoCloseable resources silently, ignoring any exceptions that occur during the close operation.
+     * This method is useful for ensuring that multiple resources are closed without throwing exceptions.
+     * If a null value is encountered in the array, it is skipped.
+     *
+     * @param closeables a variable number of AutoCloseable objects to be closed
+     */
     public static void close(AutoCloseable... closeables) {
         for (AutoCloseable closeable : closeables) {
             if (closeable != null) {
@@ -805,6 +899,17 @@ public class IoUtil {
     }
 
 
+    /**
+     * Parses a given file to extract information enclosed within '#' symbols.
+     * The method reads the content of the file, searches for patterns matching
+     * the format #content#, and returns a list of all such matches.
+     *
+     * @param file the file to be parsed. If the file is null or does not exist,
+     *             the method will print an error message and return null.
+     * @return a list of strings containing the matched content extracted from
+     *         the file. If no matches are found, an empty list is returned after
+     *         printing an error message. Returns null if the file is invalid.
+     */
     public static List<String> parseShpInfo(File file) {
         if (file == null || !file.exists()) {
             if (file != null) System.out.println(file.getName() + " is null ,place check exist !");
@@ -845,6 +950,14 @@ public class IoUtil {
     }
 
 
+    /**
+     * Parses a Shape Backup file to extract meaningful content by processing its bytes.
+     * The method reads the file byte-by-byte, ignoring specific characters such as whitespace,
+     * tabs, newlines, and quotes. It identifies segments of content marked by the '#' character
+     * and collects them into a list of strings.
+     *
+     * @param file the Shape Backup file to be parsed. Must not be null and should exist.
+     */
     public static void parseShpBackup(File file) {
         List<String> ans = new ArrayList<>();
         byte[] bf = new byte[1];
@@ -880,17 +993,17 @@ public class IoUtil {
     private static final String defaultContent = "List<String>";
 
 
+
     /**
-     * 根据方法名称匹配 List参数
+     * Searches for a method within a specified class file and returns either the return type
+     * or a specific argument type based on the provided parameters.
      *
-     * @param c            类名
-     * @param name         方法名
-     * @param returnType   类型
-     * @param idx          参数序号 -1 表示是返回值类型 其他表示该参数的索引位置信息
-     * @param argsSize     校验参数类型大小是否一致！
-     * @param isReturnType 是否是返回类型
-     * @param <T>
-     * @return
+     * @param c the Class object representing the class to search within
+     * @param name the name of the method to find; may include special characters like '$'
+     * @param returnType the expected return type of the method being searched
+     * @param idx the index of the argument to retrieve; if -1, the return type is processed instead
+     * @param argsSize the expected number of arguments in the method signature for validation
+     * @return a String representing either the return type or the type of the argument at the specified index
      */
     public static String findListReturnTypeMethod(Class<?> c, String name, String returnType, int idx, int argsSize) {
         if (c == null) {
@@ -996,29 +1109,67 @@ public class IoUtil {
     }
 
 
+    /**
+     * Constructs an absolute path by appending the provided directory to the absolute path of the given class if necessary.
+     * If the provided directory is already an absolute path, it is returned as-is.
+     *
+     * @param c   the Class object used to determine the base absolute path when needed
+     * @param dir the directory path to be checked or appended; must not be null
+     * @return the resulting absolute path, either the original directory if it was already absolute,
+     *         or the combination of the class's absolute path and the provided directory
+     */
     public static String wrapperAbsolutePath(Class<?> c, String dir) {
         Objects.requireNonNull(dir, "dir Not allow null");
         return isAbsolutePath(dir) ? dir : IoUtil.buildAbsolutePath(c) + dir;
     }
 
+    /**
+     * Checks if the given directory path is an absolute path.
+     *
+     * @param dir the directory path to check; can be null or empty
+     * @return true if the path is absolute, false otherwise
+     */
     public static boolean isAbsolutePath(String dir) {
-        if (dir == null || dir.length() == 0) {
+        if (StringUtils.isEmpty(dir)) {
             return false;
         }
         return dir.charAt(0) == File.separator.charAt(0) || dir.charAt(0) == '/' || dir.length() >= 2 && dir.charAt(1) == ':';
     }
 
 
+    /**
+     * Reads the content of a file specified by the given path relative to the provided class.
+     * The method first resolves the absolute path using the wrapperAbsolutePath method
+     * and then reads the content using the readContent method.
+     *
+     * @param c    the class used as a reference point to resolve the relative path
+     * @param path the relative or absolute path to the file whose content is to be read
+     * @return the content of the file as a String
+     */
     public static String readContent(Class<?> c, String path) {
         path = wrapperAbsolutePath(c, path);
         return readContent(path);
     }
 
+    /**
+     * Reads the content from a file located at the specified path.
+     *
+     * @param path the path to the file whose content is to be read
+     * @return the content of the file as a String
+     */
     public static String readContent(String path) {
         return readContent(new File(path));
     }
 
 
+    /**
+     * Reads the entire content of a file into a string.
+     * If the file does not exist, an empty string is returned.
+     * If an IOException occurs during reading, the exception is logged, and an empty string is returned.
+     *
+     * @param file the file to read content from
+     * @return the content of the file as a string, or an empty string if the file does not exist or an error occurs
+     */
     public static String readContent(File file) {
         BufferedInputStream bis = null;
         StringBuilder sb = null;
@@ -1044,16 +1195,38 @@ public class IoUtil {
     }
 
 
+    /**
+     * Writes the specified content to a file located at the given URL path.
+     * The URL path is first processed to determine its absolute path using the provided class and wrapper method.
+     *
+     * @param c        the Class object used to resolve the absolute path of the URL
+     * @param url      the relative or absolute URL path where the content will be written
+     * @param content  the content to be written to the file at the specified URL path
+     */
     public static void writeContent(Class<?> c, String url, String content) {
         url = wrapperAbsolutePath(c, url);
         writeContent(url, content);
     }
 
 
+    /**
+     * Writes the specified content to a file located at the given URL path.
+     *
+     * @param url the path to the file where the content will be written; this is treated as a file path
+     * @param content the data to be written into the file
+     */
     public static void writeContent(String url, String content) {
         writeContent(new File(url), content);
     }
 
+    /**
+     * Writes the specified content to the given file using UTF-8 encoding.
+     * If the file does not exist, it will be created.
+     * The method ensures that the output stream is properly closed after writing.
+     *
+     * @param file the file to which the content will be written
+     * @param content the string content to write to the file
+     */
     public static void writeContent(File file, String content) {
         BufferedOutputStream bos = null;
         try {
@@ -1071,12 +1244,30 @@ public class IoUtil {
     }
 
 
+    /**
+     * Creates a new file associated with the given class and filename.
+     * The method resolves the absolute path of the file using the provided class and filename,
+     * then delegates the file creation process to an internal method.
+     *
+     * @param c the class used to determine the base path for the file
+     * @param filename the name of the file to be created
+     * @return the newly created File object
+     */
     public static File createFile(Class<?> c, String filename) {
         filename = wrapperAbsolutePath(c, filename);
         return createFile(filename);
     }
 
 
+    /**
+     * Creates a new file with the specified file name. If the parent directories
+     * of the file do not exist, they are created. If the file already exists,
+     * the method returns null.
+     *
+     * @param fileName the name of the file to be created, including its path
+     * @return the File object representing the newly created file, or null if
+     *         the file already exists or an error occurs during creation
+     */
     public static File createFile(String fileName) {
 
         try {

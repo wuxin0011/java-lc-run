@@ -3,47 +3,51 @@ package code_generation.contest;
 import java.util.List;
 
 /**
+ * Interface representing a programming contest and defining operations related to contest management,
+ * problem retrieval, and code template generation.
  * @author: wuxin0011
- * @Description:
+ * @since 1.0
  */
 public interface Contest {
 
-
-    /***
-     * 获取本次比赛编号
-     * @return ID
+    /**
+     * Gets the unique identifier for this contest.
+     *
+     * @return the contest ID
      */
     int getId();
 
-
     /**
-     * 获取比赛所有题目链接
+     * Retrieves the URLs of all problem statements for a given contest.
      *
-     * @param id id
-     * @return urls
+     * @param id the contest ID
+     * @return a list of URLs pointing to the contest problems
+     * @throws IllegalArgumentException if the provided ID is invalid
      */
     List<String> getUrls(int id);
 
-
     /**
-     * 解析测试案例
+     * Parses the input string to extract test cases for contest problems.
      *
-     * @return 返回测试案例
+     * @param input the raw input containing test cases
+     * @return the formatted test case string
+     * @throws NullPointerException if the input is null
      */
     String parseTestCase(String input);
 
-
     /**
-     * 解析代码快内容
+     * Parses the input string to extract code template content.
      *
-     * @return 返回代码快内容
+     * @param input the raw input containing code template
+     * @return the parsed code template object
+     * @throws NullPointerException if the input is null
      */
     Object parseCodeTemplate(String input);
 
-
     /**
-     * 生成template
+     * Generates code templates for the contest problems.
+     * Implementations should handle the creation of template files
+     * with appropriate structure and boilerplate code.
      */
     void generatorTemplate();
-
 }
