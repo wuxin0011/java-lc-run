@@ -4,6 +4,17 @@
 # About
 This is a small tool that automatically crawls the weekly competition, which can be easily run locally, without processing input and output, and at the same time can customise the daily question and custom classified questions for easy review.
 
+# install
+
+```xml
+<dependency>
+    <groupId>io.github.wuxin0011</groupId>
+    <artifactId>java-lc-run</artifactId>
+    <version>0.0.1-beta</version>
+</dependency>
+```
+[last version](https://central.sonatype.com/artifact/io.github.wuxin0011/java-lc-run)
+
 # Example
 
 
