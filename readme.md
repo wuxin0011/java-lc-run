@@ -10,7 +10,7 @@ This is a small tool that automatically crawls the weekly competition, which can
 <dependency>
     <groupId>io.github.wuxin0011</groupId>
     <artifactId>java-lc-run</artifactId>
-    <version>0.0.1-beta</version>
+    <version>0.0.2-beta</version>
 </dependency>
 ```
 [last version](https://central.sonatype.com/artifact/io.github.wuxin0011/java-lc-run)
@@ -32,7 +32,7 @@ You can also use Maven to configure the configuration
 
 
 ### custom week contest [ LCContest.WEEK_CONTEST](./src/main/java/code_generation/crwal/leetcode/LCContest.java)
- 
+
 ```java
 public class CustomWeekContest {
     public static void main(String[] args) {
