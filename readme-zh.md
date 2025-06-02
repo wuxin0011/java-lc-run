@@ -32,10 +32,10 @@
 
 如需自定义配置，请在项目resources目录下创建`config.properties`文件：
 
-properties
 
-```
-# Java源码根目录
+
+```properties
+# 项目启动根目录
 root_dir=[src,main,java]
 # cookie配置目录，"."表示工作目录
 request_config=.
@@ -49,9 +49,9 @@ create_contest_readme=true
 
 ### 自定义周赛 [LCContest.WEEK_CONTEST](./src/main/java/code_generation/crwal/leetcode/LCContest.java)
 
-java
 
-```
+
+``` java
 public class CustomWeekContest {
     public static void main(String[] args) {
         LCContest.WEEK_CONTEST.createNo(CustomWeekContest.class);
@@ -61,9 +61,9 @@ public class CustomWeekContest {
 
 ### 自定义双周赛 [LCContest.BI_WEEK_CONTEST](./src/main/java/code_generation/crwal/leetcode/LCContest.java)
 
-java
 
-```
+
+```java
 public class CustomBIWeekContest {
     public static void main(String[] args) {
         LCContest.BI_WEEK_CONTEST.createNo(CustomBIWeekContest.class);
@@ -73,9 +73,9 @@ public class CustomBIWeekContest {
 
 ### 自动创建下一场比赛 [Next](./src/main/java/code_generation/crwal/leetcode/LCContest.java)
 
-java
 
-```
+
+``` java
 public class Next {
     public static void main(String[] args) {
         LCContest.autoCreateNext(Next.class);
