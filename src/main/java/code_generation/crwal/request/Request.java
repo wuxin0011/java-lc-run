@@ -1,5 +1,6 @@
 package code_generation.crwal.request;
 
+import code_generation.config.LocalConfig;
 import code_generation.crwal.Constant;
 import code_generation.utils.IoUtil;
 import code_generation.utils.StringUtils;
@@ -82,7 +83,7 @@ public class Request {
      */
     public Request(Class<?> aClass) {
         this.aClass = Objects.requireNonNull(aClass, "class not allow null");
-        this.configPath = System.getProperty("user.dir") + File.separator + IGNORE_DIR;
+        this.configPath = LocalConfig.REQUEST_CONFIG_DIR == null ? (System.getProperty("user.dir") + File.separator + IGNORE_DIR) : LocalConfig.REQUEST_CONFIG_DIR ;
         checkConfig();
     }
 
@@ -104,7 +105,7 @@ public class Request {
             throw new RuntimeException("place use absolutePath !");
         }
         Map<String, Map<String, String>> maps = Config.initConfig(configPath);
-        this.headers = maps == null || maps.size() == 0 ? null : maps.get(Constant.headers);
+        this.headers = maps == null || maps.isEmpty() ? null : maps.get(Constant.headers);
     }
 
     /**

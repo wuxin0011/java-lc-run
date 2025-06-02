@@ -1,6 +1,7 @@
 package code_generation.utils;
 
 
+import code_generation.config.LocalConfig;
 import code_generation.contest.ParseCodeInfo;
 import code_generation.proxy.TestData;
 
@@ -77,7 +78,7 @@ public class IoUtil {
      * especially in contexts where source code files are organized under specific folder hierarchies.
      * The array defines a sequence of directory names that form the path structure.
      */
-    public static final String[] DEFAULT_ROOTS = {"src", "main", "java"};
+    public static final String[] DEFAULT_ROOTS = LocalConfig.ROOT_DIRS;
 
 
     /**
@@ -110,7 +111,7 @@ public class IoUtil {
         }
         StringBuilder sb = new StringBuilder();
         sb.append(File.separator);
-        for (String defaultRoot : DEFAULT_ROOTS) {
+        for (String defaultRoot : LocalConfig.ROOT_DIRS) {
             sb.append(defaultRoot);
             sb.append(File.separator);
         }

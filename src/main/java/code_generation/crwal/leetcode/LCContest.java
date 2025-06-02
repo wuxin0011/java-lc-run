@@ -1,5 +1,6 @@
 package code_generation.crwal.leetcode;
 
+import code_generation.config.LocalConfig;
 import code_generation.contest.*;
 import code_generation.crwal.TestCaseUtil;
 import code_generation.utils.*;
@@ -614,7 +615,8 @@ public class LCContest implements Contest {
     public static String getUserName() {
         final String key = "username";
         String userStatusInfo = BuildUrl.userStatus();
-        return StringUtils.jsonStrGetValueByKey(userStatusInfo, key);
+        String username = StringUtils.jsonStrGetValueByKey(userStatusInfo, key);
+        return StringUtils.isEmpty(username) ? username: LocalConfig.USER_NAME;
     }
 
     /**

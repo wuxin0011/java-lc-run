@@ -175,6 +175,7 @@ public abstract class LCCustom implements CustomProblem {
                 .buildUrl(url)
                 .buildMethod(method)
                 .buildCodeInfo(parseCodeInfo)
+                .buildAuthor(LCContest.getUserName())
                 .buildMethodName(methodName);
 
         // Proceed to implementation-specific processing
