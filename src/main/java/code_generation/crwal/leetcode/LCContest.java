@@ -618,14 +618,6 @@ public class LCContest implements Contest {
     }
 
     /**
-     * Main method showing next contest numbers.
-     */
-    public static void main(String[] args) {
-        System.out.println("Next WEEK_CONTEST: " + WEEK_CONTEST.getId());
-        System.out.println("Next BI_WEEK_CONTEST: " + BI_WEEK_CONTEST.getId());
-    }
-
-    /**
      * Automatically creates next contest based on current time.
      *
      * @param aClass reference class for path resolution

@@ -52,7 +52,7 @@ public class ReflectUtils {
      * @return a string containing the formatted description information of the class,
      *         or an empty string if the input class object is null or no description annotation is found
      */
-    public static <T> String getClassInfo(Class<T> c) {
+    public static String getClassInfo(Class<?> c) {
         if (c == null) {
             return EMPTY_STR;
         }
@@ -67,7 +67,7 @@ public class ReflectUtils {
      * @return a string containing the formatted description information of the method,
      *         or an empty string if the method does not exist or no description annotation is found
      */
-    public static <T> String getMethodInfo(Class<T> c, String methodName) {
+    public static String getMethodInfo(Class<?> c, String methodName) {
         try {
             return getMethodInfo(c.getDeclaredMethod(methodName, c));
         } catch (NoSuchMethodException e) {
@@ -83,7 +83,7 @@ public class ReflectUtils {
      * @return a string containing the formatted description information of the method,
      *         or an empty string if the input method object is null or no description annotation is found
      */
-    public static <T> String getMethodInfo(Method method) {
+    public static String getMethodInfo(Method method) {
         if (method == null) {
             return EMPTY_STR;
         }
@@ -97,7 +97,7 @@ public class ReflectUtils {
      * @return a formatted string containing the problem's information such as description, tags, difficulty, URL, types, and reference links;
      *         returns an empty string if the input Description object is null or lacks relevant data
      */
-    public static <T> String getDescriptionInfo(Description description) {
+    public static String getDescriptionInfo(Description description) {
         if (description == null) {
             return EMPTY_STR;
         }
@@ -1571,7 +1571,7 @@ public class ReflectUtils {
      * @return the origin class of the source class, or the source class itself if it is not nested,
      *         or null if the input source class is null
      */
-    public static <T> Class<?> loadOrigin(Class<T> src) {
+    public static  Class<?> loadOrigin(Class<?> src) {
         if (src == null) {
             return null;
         }

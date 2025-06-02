@@ -44,11 +44,6 @@ public class ListNode {
      *
      * @param args variable number of integers to create nodes from
      * @return the head node of the constructed linked list
-     * @example
-     * {@code
-     * // Creates list: 1 -> 2 -> 3
-     * ListNode head = ListNode.createListNode(1, 2, 3);
-     * }
      */
     public static ListNode createListNode(int... args) {
         ListNode dummy = new ListNode(-1); // Temporary dummy node
@@ -66,11 +61,6 @@ public class ListNode {
      *
      * @param node the head node of the linked list to print
      * @return a formatted string representation of the linked list
-     * @example
-     * {@code
-     * ListNode list = ListNode.createListNode(1, 2, 3);
-     * String str = ListNode.print(list); // Returns "[1, 2, 3]"
-     * }
      */
     public static String print(ListNode node) {
         StringBuilder sb = new StringBuilder();

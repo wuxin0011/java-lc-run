@@ -28,10 +28,6 @@ public class NCUtil {
      * @return The extracted UUID string, or the original URL if empty
      * @throws RuntimeException if the URL doesn't start with the expected PRACTICE_PREFIX
      * @throws NullPointerException if the URL is null
-     *
-     * @example
-     * // Returns "75e878df47f24fdc9dc3e400ec6058ca"
-     * getUUIDByPracticeUrl("https://www.nowcoder.com/practice/75e878df47f24fdc9dc3e400ec6058ca?tpId=295...")
      */
     public static String getUUIDByPracticeUrl(String url) {
         // Example input:

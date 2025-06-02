@@ -5,7 +5,7 @@ import code_generation.utils.IoUtil;
 import code_generation.utils.StringUtils;
 
 /**
- * Custom LeetCode problem template generator that uses hyphenated naming convention (AAA-B-C => AAA_B_C).
+ * Custom LeetCode problem template generator that uses hyphenated naming convention
  * Extends {@link LCCustom} to provide specialized naming and file organization.
  * @author wuxin0011
  * @since 1.0

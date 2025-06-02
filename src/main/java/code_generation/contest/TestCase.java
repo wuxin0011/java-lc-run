@@ -19,7 +19,6 @@ public interface TestCase {
      * @throws ParseException if the input cannot be properly parsed
      * @throws NullPointerException if the input parameter is null
      *
-     * @implSpec Implementations should:
      * <ul>
      *   <li>Handle the specific format used in coding contests</li>
      *   <li>Extract individual test cases from the input</li>
@@ -36,7 +35,6 @@ public interface TestCase {
      * @throws ParseException if the input cannot be properly parsed
      * @throws NullPointerException if the input parameter is null
      *
-     * @implSpec Implementations should:
      * <ul>
      *   <li>Handle standard problem test case formats</li>
      *   <li>Extract individual test cases from the input</li>

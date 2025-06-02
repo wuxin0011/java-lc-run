@@ -148,6 +148,8 @@ public class BuildUrl {
 
     /**
      * @deprecated This API is not reliable, use {@link #questionTranslations(String)} instead
+     * @param titleSlug titleSlug
+     * @return string result
      */
     @Deprecated
     public static String getCreateQuestionTestCase(String titleSlug) {

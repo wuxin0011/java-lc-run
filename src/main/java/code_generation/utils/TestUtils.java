@@ -18,14 +18,13 @@ import java.util.*;
 public class TestUtils {
 
 
-
     /**
      * Tests the equality of two boolean values represented as objects.
      * This method compares the actual value with the expected value and prints a success message if they match.
      * If the values do not match, it prints a failure message along with the actual and expected values.
      *
      * @param real the actual value to be tested
-     * @param exp the expected value for comparison
+     * @param exp  the expected value for comparison
      */
     public static void testBoolean(Object real, Object exp) {
         testBoolean(real, exp, System.currentTimeMillis() + " 测试通过！");
@@ -36,8 +35,8 @@ public class TestUtils {
      * This method compares the actual value with the expected value. If they match, it prints the provided success message.
      * If the values do not match, it prints a failure message along with the actual and expected values, including a timestamp.
      *
-     * @param real the actual value to be tested
-     * @param exp the expected value for comparison
+     * @param real       the actual value to be tested
+     * @param exp        the expected value for comparison
      * @param successMsg the message to be printed if the actual value matches the expected value
      */
     public static void testBoolean(Object real, Object exp, String successMsg) {
@@ -63,8 +62,8 @@ public class TestUtils {
      * @param arr2    the second array to be tested, representing the expected result or state
      * @param message the message associated with the test, providing context or details about the comparison
      */
-    public static <T> void testArray(T[] arr1, T[] arr2, String message) {
-        Expect<T[], String> expect = (v1, v2, msg) -> {
+    public static void testArray(Object[] arr1, Object[] arr2, String message) {
+        Expect<Object[], String> expect = (v1, v2, msg) -> {
             if (v1 == v2) {
                 System.out.println("测试通过");
             } else if (v1 != null && v2 != null && v2.length != v1.length) {
@@ -104,14 +103,14 @@ public class TestUtils {
      * If the lists are identical, the method returns true; otherwise, it logs the differences
      * and returns false.
      *
-     * @param b the list to be tested, representing the actual result or state
-     * @param expect the list representing the expected result or state
+     * @param b        the list to be tested, representing the actual result or state
+     * @param expect   the list representing the expected result or state
      * @param isStrict a boolean flag indicating whether the comparison should be strict (true)
      *                 or non-strict (false)
      * @return true if the lists are considered equal based on the specified comparison mode,
-     *         false otherwise
+     * false otherwise
      */
-    public static <T> boolean deepEqual(List<T> b, List<T> expect, boolean isStrict) {
+    public static boolean deepEqual(List<?> b, List<?> expect, boolean isStrict) {
         if (expect == b) {
             return true;
         }
@@ -124,8 +123,8 @@ public class TestUtils {
         if (isStrict) {
             int idx = -1;
             for (int i = 0; i < n; i++) {
-                T t1 = expect.get(i);
-                T t2 = b.get(i);
+                Object t1 = expect.get(i);
+                Object t2 = b.get(i);
                 if (t1 == null || !valid(t1, t2, t1.getClass().getSimpleName(), isStrict)) {
                     idx = i;
                     break;
@@ -141,11 +140,11 @@ public class TestUtils {
                 return false;
             }
         } else {
-            Set<T> aset = new HashSet<>();
-            Set<T> bset = new HashSet<>();
+            Set<Object> aset = new HashSet<>();
+            Set<Object> bset = new HashSet<>();
             for (int i = 0; i < n; i++) {
-                T t1 = expect.get(i);
-                T t2 = b.get(i);
+                Object t1 = expect.get(i);
+                Object t2 = b.get(i);
                 aset.add(t1);
                 bset.add(t2);
             }
@@ -161,14 +160,14 @@ public class TestUtils {
      * If the arrays are identical based on the specified comparison mode, the method returns true;
      * otherwise, it returns false.
      *
-     * @param a the first array to be compared, representing the actual result or state
-     * @param b the second array to be compared, representing the expected result or state
+     * @param a        the first array to be compared, representing the actual result or state
+     * @param b        the second array to be compared, representing the expected result or state
      * @param isStrict a boolean flag indicating whether the comparison should be strict (true)
      *                 or non-strict (false)
      * @return true if the arrays are considered equal based on the specified comparison mode,
-     *         false otherwise
+     * false otherwise
      */
-    public static <T> boolean deepEqual(T[] a, T[] b, boolean isStrict) {
+    public static boolean deepEqual(Object[] a, Object[] b, boolean isStrict) {
         if (a == b) {
             return true;
         }
@@ -191,8 +190,8 @@ public class TestUtils {
             }
             return true;
         } else {
-            Set<T> aset = new HashSet<>();
-            Set<T> bset = new HashSet<>();
+            Set<Object> aset = new HashSet<>();
+            Set<Object> bset = new HashSet<>();
             for (int i = 0; i < a.length; i++) {
                 aset.add(a[i]);
                 bset.add(b[i]);
@@ -211,15 +210,14 @@ public class TestUtils {
      * If the arrays are identical based on the specified comparison mode, the method returns true;
      * otherwise, it returns false.
      *
-     * @param <T> the type of elements in the arrays
-     * @param a the first two-dimensional array to be compared, representing the actual result or state
-     * @param b the second two-dimensional array to be compared, representing the expected result or state
+     * @param a        the first two-dimensional array to be compared, representing the actual result or state
+     * @param b        the second two-dimensional array to be compared, representing the expected result or state
      * @param isStrict a boolean flag indicating whether the comparison should be strict (true)
      *                 or non-strict (false)
      * @return true if the arrays are considered equal based on the specified comparison mode,
-     *         false otherwise
+     * false otherwise
      */
-    public static <T> boolean deepEqual(T[][] a, T[][] b, boolean isStrict) {
+    public static boolean deepEqual(Object[][] a, Object[][] b, boolean isStrict) {
         if (a == b) {
             // System.out.println("ok");
             return true;
@@ -341,17 +339,17 @@ public class TestUtils {
 
     /**
      * Compares two 3-dimensional arrays deeply for equality based on the specified strictness mode.
-     *
+     * <p>
      * This method evaluates whether two 3D arrays are equal in terms of dimensions and their corresponding elements.
      * If the arrays are identical or meet the criteria defined by the strictness parameter, they are considered equal.
      *
-     * @param a the first 3-dimensional array to compare
-     * @param b the second 3-dimensional array to compare
+     * @param a        the first 3-dimensional array to compare
+     * @param b        the second 3-dimensional array to compare
      * @param isStrict a boolean flag indicating whether the comparison should be strict;
-     *                  if true, stricter rules are applied during element validation
+     *                 if true, stricter rules are applied during element validation
      * @return true if the arrays are deeply equal according to the specified strictness mode, false otherwise
      */
-    public static <T> boolean deepEqual(T[][][] a, T[][][] b, boolean isStrict) {
+    public static boolean deepEqual(Object[][][] a, Object[][][] b, boolean isStrict) {
         if (a == b) {
             // System.out.println("ok");
             return true;
@@ -394,10 +392,10 @@ public class TestUtils {
      * This method delegates the validation logic to an overloaded version of the `valid` method, passing an additional
      * parameter to control whether detailed information should be printed during the validation process.
      *
-     * @param result the actual result to be validated
-     * @param expect the expected value against which the result is compared
+     * @param result     the actual result to be validated
+     * @param expect     the expected value against which the result is compared
      * @param returnType a string indicating the type of the values being compared, used to determine the validation strategy
-     * @param isStrict a boolean flag indicating whether the comparison should be strict (true) or non-strict (false)
+     * @param isStrict   a boolean flag indicating whether the comparison should be strict (true) or non-strict (false)
      * @return true if the result matches the expected value based on the specified criteria, false otherwise
      */
     public static boolean valid(Object result, Object expect, String returnType, boolean isStrict) {
@@ -419,7 +417,7 @@ public class TestUtils {
             return true;
         }
         if (result == null) {
-            printDiffInfo(String.valueOf(expect), "null",isPrintInfo);
+            printDiffInfo(String.valueOf(expect), "null", isPrintInfo);
             return false;
         }
         if (returnType == null) {
@@ -445,7 +443,7 @@ public class TestUtils {
                     Integer[][] r = covert((int[][]) result);
                     ok = deepEqual(r, e, isStrict);
                     if (!ok) {
-                        printDiffInfo(Arrays.deepToString(e), Arrays.deepToString(r),isPrintInfo);
+                        printDiffInfo(Arrays.deepToString(e), Arrays.deepToString(r), isPrintInfo);
                     }
                     return ok;
                 }
@@ -454,7 +452,7 @@ public class TestUtils {
                     Integer[][][] r = covert((int[][][]) result);
                     ok = deepEqual(r, e, isStrict);
                     if (!ok) {
-                        printDiffInfo(Arrays.deepToString(e), Arrays.deepToString(r),isPrintInfo);
+                        printDiffInfo(Arrays.deepToString(e), Arrays.deepToString(r), isPrintInfo);
                     }
                     return ok;
                 }
@@ -464,7 +462,7 @@ public class TestUtils {
                     Long[] r = covert((long[]) result);
                     ok = deepEqual(r, e, isStrict);
                     if (!ok) {
-                        printDiffInfo(Arrays.toString(e), Arrays.toString(r),isPrintInfo);
+                        printDiffInfo(Arrays.toString(e), Arrays.toString(r), isPrintInfo);
                     }
                     return ok;
                 }
@@ -474,7 +472,7 @@ public class TestUtils {
                     Long[][] r = covert((long[][]) result);
                     ok = deepEqual(r, e, isStrict);
                     if (!ok) {
-                        printDiffInfo(Arrays.deepToString(e), Arrays.deepToString(r),isPrintInfo);
+                        printDiffInfo(Arrays.deepToString(e), Arrays.deepToString(r), isPrintInfo);
                     }
                     return ok;
                 }
@@ -494,7 +492,7 @@ public class TestUtils {
                     Double[] r = covert((double[]) result);
                     ok = deepEqual(r, e, isStrict);
                     if (!ok) {
-                        printDiffInfo(Arrays.toString(e), Arrays.toString(r),isPrintInfo);
+                        printDiffInfo(Arrays.toString(e), Arrays.toString(r), isPrintInfo);
                     }
                     return ok;
                 }
@@ -503,7 +501,7 @@ public class TestUtils {
                     Double[][] r = covert((double[][]) result);
                     ok = deepEqual(r, e, isStrict);
                     if (!ok) {
-                        printDiffInfo(Arrays.deepToString(e), Arrays.deepToString(r),isPrintInfo);
+                        printDiffInfo(Arrays.deepToString(e), Arrays.deepToString(r), isPrintInfo);
                     }
                     return ok;
                 }
@@ -512,7 +510,7 @@ public class TestUtils {
                     Float[] r = covert((float[]) result);
                     ok = deepEqual(r, e, isStrict);
                     if (!ok) {
-                        printDiffInfo(Arrays.toString(e), Arrays.toString(r),isPrintInfo);
+                        printDiffInfo(Arrays.toString(e), Arrays.toString(r), isPrintInfo);
                     }
                     return ok;
                 }
@@ -521,20 +519,20 @@ public class TestUtils {
                     String[] e = (String[]) expect;
                     ok = deepEqual(r, e, isStrict);
                     if (!ok) {
-                        printDiffInfo(Arrays.toString(e), Arrays.toString(r),isPrintInfo);
+                        printDiffInfo(Arrays.toString(e), Arrays.toString(r), isPrintInfo);
                     }
                     return ok;
                 }
                 case "String[][]":
                     ok = deepEqual((String[][]) result, (String[][]) expect, isStrict);
                     if (!ok) {
-                        printDiffInfo(Arrays.deepToString((String[][]) expect), Arrays.deepToString((String[][]) result),isPrintInfo);
+                        printDiffInfo(Arrays.deepToString((String[][]) expect), Arrays.deepToString((String[][]) result), isPrintInfo);
                     }
                     return ok;
                 case "String[][][]":
                     ok = deepEqual((String[][][]) result, (String[][][]) expect, isStrict);
                     if (!ok) {
-                        printDiffInfo(Arrays.deepToString((String[][][]) expect), Arrays.deepToString((String[][][]) result),isPrintInfo);
+                        printDiffInfo(Arrays.deepToString((String[][][]) expect), Arrays.deepToString((String[][][]) result), isPrintInfo);
                     }
                     return ok;
                 case "char[]": {
@@ -542,7 +540,7 @@ public class TestUtils {
                     Character[] r = covert((char[]) result);
                     ok = deepEqual(r, e, isStrict);
                     if (!ok) {
-                        printDiffInfo(Arrays.toString(e), Arrays.toString(r),isPrintInfo);
+                        printDiffInfo(Arrays.toString(e), Arrays.toString(r), isPrintInfo);
                     }
                     return ok;
                 }
@@ -551,7 +549,7 @@ public class TestUtils {
                     Character[][] r = covert((char[][]) result);
                     ok = deepEqual(r, e, isStrict);
                     if (!ok) {
-                        printDiffInfo(Arrays.deepToString(e), Arrays.deepToString(r),isPrintInfo);
+                        printDiffInfo(Arrays.deepToString(e), Arrays.deepToString(r), isPrintInfo);
                     }
                     return ok;
                 }
@@ -560,7 +558,7 @@ public class TestUtils {
                     Character[][][] r = covert((char[][][]) result);
                     ok = deepEqual(r, e, isStrict);
                     if (!ok) {
-                        printDiffInfo(Arrays.deepToString(e), Arrays.deepToString(r),isPrintInfo);
+                        printDiffInfo(Arrays.deepToString(e), Arrays.deepToString(r), isPrintInfo);
                     }
                     return ok;
                 }
@@ -569,7 +567,7 @@ public class TestUtils {
                     Boolean[] r = covert((boolean[]) result);
                     ok = deepEqual(r, e, isStrict);
                     if (!ok) {
-                        printDiffInfo(Arrays.toString(e), Arrays.toString(r),isPrintInfo);
+                        printDiffInfo(Arrays.toString(e), Arrays.toString(r), isPrintInfo);
                     }
                     return ok;
                 }
@@ -578,7 +576,7 @@ public class TestUtils {
                     Boolean[][] r = covert((boolean[][]) result);
                     ok = deepEqual(r, e, isStrict);
                     if (!ok) {
-                        printDiffInfo(Arrays.deepToString(e), Arrays.deepToString(r),isPrintInfo);
+                        printDiffInfo(Arrays.deepToString(e), Arrays.deepToString(r), isPrintInfo);
                     }
                     return ok;
                 }
@@ -593,7 +591,7 @@ public class TestUtils {
                     ListNode r = (ListNode) result;
                     ok = deepEqual(r, e);
                     if (!ok) {
-                        printDiffInfo(ListNode.print(e), ListNode.print(r),isPrintInfo);
+                        printDiffInfo(ListNode.print(e), ListNode.print(r), isPrintInfo);
                     }
                     return ok;
                 }
@@ -608,12 +606,12 @@ public class TestUtils {
                         t = Arrays.deepEquals((Object[]) result, (Object[]) expect);
                         if (!t) {
                             // System.out.println("expect result = " + Arrays.deepToString((Object[]) expect) + ",but result = " + CustomColor.error(Arrays.deepToString((Object[]) result)));
-                            printDiffInfo(Arrays.deepToString((Object[]) expect), Arrays.deepToString((Object[]) result),isPrintInfo);
+                            printDiffInfo(Arrays.deepToString((Object[]) expect), Arrays.deepToString((Object[]) result), isPrintInfo);
                         }
                     } else {
                         if (!t) {
                             // System.out.println("expect result = " + expect + ",but result = " + CustomColor.error(result));
-                            printDiffInfo(String.valueOf(expect), String.valueOf(result),isPrintInfo);
+                            printDiffInfo(String.valueOf(expect), String.valueOf(result), isPrintInfo);
                         }
                     }
                     return t;
@@ -695,7 +693,7 @@ public class TestUtils {
     public static Long[][] covert(long[][] a) {
         Long[][] t = new Long[a.length][a[0].length];
         for (int i = 0; i < a.length; i++) {
-            for(int j = 0;j<a[0].length;j++){
+            for (int j = 0; j < a[0].length; j++) {
                 t[i][j] = a[i][j];
             }
         }
@@ -730,6 +728,7 @@ public class TestUtils {
         }
         return t;
     }
+
     /**
      * Converts a 2D array of primitive double values to a 2D array of Double objects.
      * Each element in the input array is wrapped into its corresponding Double object
@@ -741,12 +740,13 @@ public class TestUtils {
     public static Double[][] covert(double[][] a) {
         Double[][] t = new Double[a.length][a[0].length];
         for (int i = 0; i < a.length; i++) {
-            for(int j = 0;j<a[0].length;j++) {
+            for (int j = 0; j < a[0].length; j++) {
                 t[i][j] = a[i][j];
             }
         }
         return t;
     }
+
     /**
      * Converts a primitive char array to an array of Character objects.
      * Each element in the input array is wrapped into its corresponding Character object.
@@ -848,11 +848,11 @@ public class TestUtils {
      * @param c the Class object representing the type of the new array to be created
      * @return an array of the specified type containing the elements of the input array
      */
-    public static <T> T[] covert(Object[] a, Class<T> c) {
-        T[] t = (T[]) Array.newInstance(c, a.length);
+    public static Object[] covert(Object[] a, Class<Object> c) {
+        Object[] t = (Object[]) Array.newInstance(c, a.length);
         try {
             for (int i = 0; i < a.length; i++) {
-                t[i] = (T) a[i];
+                t[i] = a[i];
             }
         } catch (Exception e) {
             // ignore
@@ -872,7 +872,7 @@ public class TestUtils {
      * @param bset the second set to compare
      * @return true if the sets are valid according to the criteria, false otherwise
      */
-    public static <T> boolean valid(Set<T> aset, Set<T> bset) {
+    public static  boolean valid(Set<Object> aset, Set<Object> bset) {
         if (aset == bset) {
             return true;
         }
@@ -880,7 +880,7 @@ public class TestUtils {
             return false;
         }
         int cnt = 0;
-        for (T a : aset) {
+        for (Object a : aset) {
             if (bset.contains(a)) {
                 cnt++;
             } else {
@@ -908,8 +908,8 @@ public class TestUtils {
      * while ignoring certain characters. If differences are found, they are highlighted
      * using custom formatting. The output is printed only if the `isPrintInfo` flag is true.
      *
-     * @param e the expected result string to compare against
-     * @param r the actual result string to be compared
+     * @param e           the expected result string to compare against
+     * @param r           the actual result string to be compared
      * @param isPrintInfo a boolean flag that determines whether the comparison info should be printed
      */
     public static void printDiffInfo(String e, String r, boolean isPrintInfo) {

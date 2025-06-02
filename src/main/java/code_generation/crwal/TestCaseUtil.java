@@ -16,7 +16,7 @@ public class TestCaseUtil {
 
     /**
      * Builds HTML start and end tags for a given tag name.
-     * Constructs tags without closing '>' to handle attributes in opening tags.
+     * Constructs tags without closing  to handle attributes in opening tags.
      *
      * @param tagName The HTML tag name (e.g., "div", "span")
      * @return String array containing [startTag, endTag]

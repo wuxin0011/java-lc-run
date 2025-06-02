@@ -1,6 +1,7 @@
 package code_generation.proxy;
 
 import code_generation.utils.ReflectUtils;
+import code_generation.utils.StringUtils;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -39,7 +40,7 @@ public class InvocationHandlerMethodTime implements InvocationHandler {
         Object result = null;
         String info = null;
         String methodInfo = ReflectUtils.getMethodInfo(method);
-        if (methodInfo == null || "".equals(methodInfo)) {
+        if (StringUtils.isEmpty(methodInfo)) {
             info = ReflectUtils.getClassInfo(target.getClass());
         }
         try {
@@ -48,9 +49,8 @@ public class InvocationHandlerMethodTime implements InvocationHandler {
             result = method.invoke(target, args);
             long l2 = System.currentTimeMillis();
             System.out.println("\n本次测试耗时 :" + (l2 - l1) + "ms");
-        } catch (Exception e) {
+        } catch (Exception ignore) {
             System.err.println("测试失败！");
-            e.printStackTrace();
         }
         return result;
     }
@@ -74,13 +74,12 @@ public class InvocationHandlerMethodTime implements InvocationHandler {
 
     /**
      * Creates a timing proxy for a new instance of the specified LogarithmicDevice class.
-     * @param <T> The type of LogarithmicDevice
      * @param c The Class object of the LogarithmicDevice implementation
      * @throws RuntimeException if instantiation fails
      */
-    public static <T extends LogarithmicDevice> void getRunTime(Class<T> c) {
+    public static void getRunTime(Class<?> c) {
         try {
-            getRunTime(c.newInstance());
+            getRunTime((LogarithmicDevice) c.newInstance());
         } catch (InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }

@@ -24,11 +24,9 @@ public class StringUtils {
      * These tags represent a variety of common HTML elements, including structural tags, formatting
      * tags, and media-related tags. The primary purpose of this array is to serve as a reference
      * for identifying and removing specific tags from a given input string or document.
-     *
      * The list includes both block-level and inline elements, ensuring broad coverage for various
      * use cases in text sanitization or transformation tasks. Duplicate entries in the array are
      * intentional and may be used to emphasize certain tags or handle edge cases during processing.
-     *
      * This array is typically utilized in methods that involve parsing or modifying HTML/XML content,
      * where selective removal of tags is required to achieve desired output formats or compliance
      * with specific standards.
@@ -55,7 +53,6 @@ public class StringUtils {
      * "答案可能很大" in Chinese. This variable is used to store a predefined Unicode representation
      * of the text, which can be utilized for operations involving Unicode-to-text conversion or
      * other string manipulations.
-     *
      * The value is immutable and is intended for scenarios where consistent handling of specific
      * Unicode strings is required within the StringUtils class.
      */
@@ -167,7 +164,7 @@ public class StringUtils {
      * @return true if the string is null or has a length of zero, false otherwise
      */
     public static boolean isEmpty(String s) {
-        return s == null || s.length() == 0;
+        return s == null || s.isEmpty();
     }
 
     /**
@@ -178,27 +175,7 @@ public class StringUtils {
      * @return true if the string is null, has zero length, or matches "null" or "#", false otherwise
      */
     public static boolean strictIsEmpty(String s) {
-        return s == null || s.length() == 0 || "null".equals(s) || "#".equals(s);
-    }
-
-    /**
-     * Checks if the provided string is strictly empty, null, or matches any of the specified ignored values.
-     * A string is considered strictly empty if it is null, has zero length, or equals any of the values in the nullstr array.
-     *
-     * @param s the string to check, may be null
-     * @param nullstr an array of strings representing ignored values, may be null or empty
-     * @return true if the string is null, has zero length, or matches any of the ignored values, false otherwise
-     */
-    public static boolean strictIsEmpty(String s, String... nullstr) {
-        if (isEmpty(s)) {
-            return true;
-        }
-        for (String s1 : nullstr) {
-            if (!isEmpty(s1) && s1.equals(s)) {
-                return true;
-            }
-        }
-        return false;
+        return isEmpty(s) || "null".equals(s) || "#".equals(s);
     }
 
 
@@ -218,7 +195,7 @@ public class StringUtils {
      * A character is considered ignorable if the control character is '#' and the character matches stricter ignore criteria,
      * or if the control character is not '#' and matches general ignore criteria.
      *
-     * @param c the character to check
+     * @param c  the character to check
      * @param st the control character that determines the type of ignore check to perform
      * @return true if the character is ignorable under the specified conditions, false otherwise
      */
@@ -247,7 +224,7 @@ public class StringUtils {
      * A character is considered strictly ignorable if it is identified as ignorable by the {@link #isIgnore(char)} method
      * or if it matches any of the characters in the provided array.
      *
-     * @param c the character to check
+     * @param c     the character to check
      * @param chars an optional array of additional characters to consider as ignorable, may be null or empty
      * @return true if the character is strictly ignorable, false otherwise
      */
@@ -271,7 +248,7 @@ public class StringUtils {
      *
      * @param s the input string to process, may be null
      * @return the processed string with unwanted content removed or replaced; returns "\"\"" if the input is null, empty,
-     *         or becomes empty after processing
+     * or becomes empty after processing
      */
     public static String replaceIgnoreContent(String s) {
         if (isEmpty(s)) {
@@ -313,10 +290,10 @@ public class StringUtils {
      * Searches for all occurrences of a specified pattern within a given text using the Knuth-Morris-Pratt (KMP) algorithm.
      * This method repeatedly invokes the KMP search to find multiple matches of the pattern in the text and returns their starting indices.
      *
-     * @param text the text in which to search for the pattern, may not be null
+     * @param text    the text in which to search for the pattern, may not be null
      * @param pattern the pattern to search for within the text, may not be null
      * @return a list of integers representing the starting indices of all occurrences of the pattern in the text,
-     *         or an empty list if the pattern is not found
+     * or an empty list if the pattern is not found
      */
     public static List<Integer> kmpSearchList(String text, String pattern) {
         int id = -1;
@@ -333,10 +310,11 @@ public class StringUtils {
 
 
     /**
-     *
+     * @param input a string
+     * @return a filter string
      */
     public static String ingoreString(String input) {
-        if (input == null || input.length() == 0) {
+        if (isEmpty(input)) {
             //throw new NullPointerException("input content is null");
             return input;
         }
@@ -355,11 +333,11 @@ public class StringUtils {
      * Searches for the first occurrence of the specified pattern within the given text using the Knuth-Morris-Pratt (KMP) algorithm.
      * The search starts from the beginning of the text.
      *
-     * @param text the text in which to search for the pattern, may be null
+     * @param text    the text in which to search for the pattern, may be null
      * @param pattern the pattern to search for, may be null
      * @return the index of the first occurrence of the pattern in the text, or -1 if the pattern is not found,
-     *         or if either the text or pattern is null, or if the pattern length/**
-    exceeds the text length
+     * or if either the text or pattern is null, or if the pattern length/**
+     * exceeds the text length
      */
     public static int kmpSearch(String text, String pattern) {
         return kmpSearch(text, 0, pattern);
@@ -369,11 +347,11 @@ public class StringUtils {
      * Searches for the first occurrence of the specified pattern within the given text using the Knuth-Morris-Pratt (KMP) algorithm.
      * The search starts from the specified starting index.
      *
-     * @param text the text in which to search for the pattern, may be null
-     * @param st the starting index in the text from which the search begins, must be non-negative and less than the text length
+     * @param text    the text in which to search for the pattern, may be null
+     * @param st      the starting index in the text from which the search begins, must be non-negative and less than the text length
      * @param pattern the pattern to search for, may be null
      * @return the index of the first occurrence of the pattern in the text starting from the specified index,
-     *         or -1 if the pattern is not found, or if the input parameters are invalid
+     * or -1 if the pattern is not found, or if the input parameters are invalid
      */
     public static int kmpSearch(String text, int st, String pattern) {
         if (pattern == null || text == null || pattern.length() > text.length()) {
@@ -407,7 +385,6 @@ public class StringUtils {
     }
 
 
-
     /**
      * Wraps the provided key in double quotes if it is not already quoted.
      * If the key is null or empty, it is returned as-is without modification.
@@ -436,7 +413,7 @@ public class StringUtils {
      * If the key is not found or the JSON string is improperly formatted, the result may be null or inaccurate.
      *
      * @param jsonStr the JSON-formatted string to search within, may be null
-     * @param key the key whose associated value is to be retrieved, may be null
+     * @param key     the key whose associated value is to be retrieved, may be null
      * @return the value corresponding to the specified key, or null if the key is not found or the JSON string is invalid
      */
     public static String jsonStrGetValueByKey(String jsonStr, String key) {
@@ -446,26 +423,26 @@ public class StringUtils {
     /**
      * Retrieves the value associated with the specified key from a JSON string.
      *
-     * @param jsonStr the JSON string from which the value is to be extracted
-     * @param key the key whose associated value is to be retrieved
+     * @param jsonStr   the JSON string from which the value is to be extracted
+     * @param key       the key whose associated value is to be retrieved
      * @param isWrapper a boolean flag indicating whether the JSON string is wrapped in an object
      * @return the value associated with the specified key, or null if the key is not found or the JSON string is invalid
      */
     public static String jsonStrGetValueByKey(String jsonStr, String key, boolean isWrapper) {
-        return jsonStrGetValueByKey(jsonStr,key,isWrapper,true);
+        return jsonStrGetValueByKey(jsonStr, key, isWrapper, true);
     }
 
     /**
      * Retrieves the value associated with a specified key from a JSON string.
      * The method supports optional wrapping of the key and replacement of certain characters in the result.
      *
-     * @param jsonStr the JSON string from which the value is to be extracted
-     * @param key the key whose associated value is to be retrieved
+     * @param jsonStr   the JSON string from which the value is to be extracted
+     * @param key       the key whose associated value is to be retrieved
      * @param isWrapper if true, the key will be wrapped using a custom wrapper method before searching
      * @param isReplace if true, the returned value will have all double quotes and colons removed
      * @return the value associated with the specified key as a string, or an empty string if the key is not found or an exception occurs
      */
-    public static String jsonStrGetValueByKey(String jsonStr, String key, boolean isWrapper,boolean isReplace) {
+    public static String jsonStrGetValueByKey(String jsonStr, String key, boolean isWrapper, boolean isReplace) {
         try {
             if (isWrapper) {
                 key = wrapperKey(key);
@@ -510,7 +487,7 @@ public class StringUtils {
                     sb.append(c);
                 }
             }
-            if(!isReplace) return sb.toString();
+            if (!isReplace) return sb.toString();
             return sb.toString().replaceAll("\"", "").replace(":", "");
         } catch (Exception ignore) {
             return "";
@@ -521,7 +498,7 @@ public class StringUtils {
     /**
      * Checks if the given pair of characters form a matching pair of brackets.
      *
-     * @param left the left character, which should be an opening bracket ('{', '[', or '(')
+     * @param left  the left character, which should be an opening bracket ('{', '[', or '(')
      * @param right the right character, which should be a closing bracket ('}', ']', or ')')
      * @return true if the characters form a matching pair of brackets, false otherwise
      */
@@ -547,14 +524,15 @@ public class StringUtils {
     }
 
 
-
-
     /**
      * Processes a given string by removing special Unicode sequences and unwanted characters.
      * This method performs multiple replacements to handle escaped Unicode characters, HTML entities,
-     * and newline characters. It also trims leading ignored characters from the input*/
-    // 处理方法中的特殊unicode
-    public static String handerMethodString(String input){
+     * and newline characters. It also trims leading ignored characters from the input
+     *
+     * @param input string
+     * @return filter  string
+     */
+    public static String handerMethodString(String input) {
         if (isEmpty(input)) return input;
         input = input.replace("\\u000A", "");
         input = input.replace("\\u003C", "<");
@@ -588,11 +566,11 @@ public class StringUtils {
      *
      * @param input the input string to be processed
      * @return a substring starting from the occurrence of "Solution" if found,
-     *         otherwise the original input string
+     * otherwise the original input string
      */
-    public static String handlerAnnotationTemplate(String input){
-        int classIdx = kmpSearch(input,"Solution");
-        if(classIdx != -1){
+    public static String handlerAnnotationTemplate(String input) {
+        int classIdx = kmpSearch(input, "Solution");
+        if (classIdx != -1) {
             return input.substring(classIdx);
         }
         return input;
@@ -608,7 +586,7 @@ public class StringUtils {
      * @param ans the list of strings to be processed; may be null
      */
     public static void handlerResult(List<String> ans) {
-        while (ans != null && ans.size() > 0 && "\n".equals(ans.get(ans.size() - 1))) {
+        while (ans != null && !ans.isEmpty() && "\n".equals(ans.get(ans.size() - 1))) {
             ans.remove(ans.size() - 1);
         }
     }
@@ -657,11 +635,11 @@ public class StringUtils {
     /**
      * Extracts and processes a method string from the provided class string based on the given Java code flag.
      *
-     * @param classStr the string representation of the class containing the method to be extracted
+     * @param classStr     the string representation of the class containing the method to be extracted
      * @param javaCodeFlag the flag or marker used to identify the starting point of the method within the class string
      * @return a processed string representation of the method, prefixed with "//", or an empty string if the method cannot be found or extracted
      */
-    public static String getMethod(String classStr,String javaCodeFlag) {
+    public static String getMethod(String classStr, String javaCodeFlag) {
         if (isEmpty(javaCodeFlag) || isEmpty(classStr)) return classStr;
 
         // 查找含有Java code 的标志
@@ -669,7 +647,7 @@ public class StringUtils {
         if (i == -1) {
             return "";
         }
-        classStr = classStr.substring(i+javaCodeFlag.length());
+        classStr = classStr.substring(i + javaCodeFlag.length());
         // 如果有注释先处理注释
         classStr = StringUtils.handlerAnnotationTemplate(classStr);
         int deep = 0;
@@ -678,9 +656,9 @@ public class StringUtils {
             char c = classStr.charAt(i);
             if (c == '{') {
                 deep++;
-                if (deep==1 && sb == null){
+                if (deep == 1 && sb == null) {
                     sb = new StringBuilder();
-                } else if( deep == 2 && sb != null){
+                } else if (deep == 2 && sb != null) {
                     sb.append(c);
                 }
             } else if (c == '}') {
@@ -746,7 +724,6 @@ public class StringUtils {
     public static List<String> matchUrls(String s) {
         List<String> urls = new ArrayList<>();
         try {
-
             Pattern pattern = Pattern.compile("https://(.*)/[^\\s\\)]+");
             Matcher matcher = pattern.matcher(s);
             while (matcher.find()) {
@@ -772,25 +749,27 @@ public class StringUtils {
      */
     public static String unicodeToChinese(String unicodeStr) {
         StringBuilder sb = new StringBuilder();
-
         try {
             String[] hex = unicodeStr.split("\\\\u");
             for (int i = 1; i < hex.length; i++) {
                 int data = Integer.parseInt(hex[i], 16);
                 sb.append((char) data);
             }
-        } catch (Exception e) {
+        } catch (Exception ignore) {
             return "";
         }
-
         return sb.toString();
     }
 
 
     /**
      * Counts the number of directories within the absolute path of the given class
-     * that start with the specified prefix and*/
-    public static String getDirCount(Class<?> aclass,String prefix)  {
+     * that start with the specified prefix and
+     * @param aclass load class
+     * @param prefix dir prefix
+     * @return path
+     */
+    public static String getDirCount(Class<?> aclass, String prefix) {
         String s = IoUtil.buildAbsolutePath(aclass);
         File file = new File(s);
         int cnt = 0;
@@ -834,6 +813,7 @@ public class StringUtils {
         input = input.replace(explainUnicode, ExplanationDot);
         return input;
     }
+
     /**
      * Converts specific substrings within the input string to their corresponding Unicode representations.
      * The method performs a series of replacements to handle various cases of input and output terms,
@@ -841,7 +821,7 @@ public class StringUtils {
      *
      * @param input the original string that may contain substrings to be converted to Unicode
      * @return the modified string with specific substrings replaced by their Unicode equivalents,
-     *         or the original string if it is null or empty
+     * or the original string if it is null or empty
      */
     public static String inputOrOutputConvertUnicode(String input) {
         if (StringUtils.isEmpty(input)) {
@@ -864,7 +844,7 @@ public class StringUtils {
      * including any attributes within the opening tag. If the specified tag is not found in the input,
      * the original input string is returned unchanged.
      *
-     * @param input the input string containing HTML content
+     * @param input   the input string containing HTML content
      * @param tagName the name of the HTML tag to be removed (e.g., "div", "span")
      * @return the modified string with the specified tag removed, or the original string if the tag is not found
      */
