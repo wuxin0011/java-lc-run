@@ -18,6 +18,16 @@ This is a small tool that automatically crawls the weekly competition, which can
 # Example
 
 
+## example repo
+
+
+First launch Please configure the cookies of your leetcode website !
+if you 
+
+
+You can download the usage example [here🚀](https://github.com/wuxin0011/java-lc-run-exmpale)
+You can also use Maven to configure the configuration
+
 ## contest
 
 
