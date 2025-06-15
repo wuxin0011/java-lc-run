@@ -6,7 +6,7 @@
 
   <groupId>io.github.wuxin0011</groupId>
   <artifactId>java-lc-run</artifactId>
-  <version>0.0.3-beta</version>
+  <version>0.0.4-beta</version>
 
   <packaging>jar</packaging>
 
@@ -19,6 +19,15 @@
 
   <description>A java tool that runs the weekly contest natively</description>
   <url>https://github.com/wuxin0011/java-lc-run</url>
+
+
+  <dependencies>
+    <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <version>20231013</version>
+    </dependency>
+  </dependencies>
 
   <licenses>
     <license>

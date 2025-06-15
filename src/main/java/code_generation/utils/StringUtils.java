@@ -2,6 +2,7 @@ package code_generation.utils;
 
 import code_generation.crwal.leetcode.BuildUrl;
 import code_generation.crwal.leetcode.LCTemplate;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -282,6 +283,13 @@ public class StringUtils {
         if (isEmpty(s)) {
             return "\"\"";
         }
+        // Explanation
+        if(StringUtils.kmpSearch(s,"Explanation")!=-1) {
+            s = s.substring(0,StringUtils.kmpSearch(s,"Explanation"));
+        }
+        if(StringUtils.kmpSearch(s,"explanation")!=-1) {
+            s = s.substring(0,StringUtils.kmpSearch(s,"explanation"));
+        }
         return s;
     }
 
@@ -492,6 +500,29 @@ public class StringUtils {
         } catch (Exception ignore) {
             return "";
         }
+    }
+
+    /**
+     * 获取json的key
+     * @param jsonStr jsonstr
+     * @param keys keys
+     * @return string
+     */
+
+    public static String jsonStrGetValueByKeys(String jsonStr, String ...keys) {
+        JSONObject obj = null;
+        String ans = "";
+        try{
+            for (int i = 0; i < keys.length; i++) {
+                String key = keys[i];
+                obj = new JSONObject(jsonStr);
+                ans = String.valueOf(obj.get(key));
+                jsonStr = ans;
+            }
+        }catch (Exception e) {
+            return "";
+        }
+        return ans;
     }
 
 

@@ -613,10 +613,8 @@ public class LCContest implements Contest {
      * @return username or empty string if not found
      */
     public static String getUserName() {
-        final String key = "username";
-        String userStatusInfo = BuildUrl.userStatus();
-        String username = StringUtils.jsonStrGetValueByKey(userStatusInfo, key);
-        return StringUtils.isEmpty(username) ? username: LocalConfig.USER_NAME;
+        String username = StringUtils.jsonStrGetValueByKeys(BuildUrl.userStatus(), "data","userStatus","username");
+        return !StringUtils.isEmpty(username) ? username: LocalConfig.USER_NAME;
     }
 
     /**
