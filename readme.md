@@ -10,7 +10,7 @@ This is a small tool that automatically crawls the weekly competition, which can
 <dependency>
     <groupId>io.github.wuxin0011</groupId>
     <artifactId>java-lc-run</artifactId>
-    <version>0.0.3-beta</version>
+    <version>0.0.4-beta</version>
 </dependency>
 ```
 [last version](https://central.sonatype.com/artifact/io.github.wuxin0011/java-lc-run)

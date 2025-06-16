@@ -10,7 +10,7 @@
 <dependency>
     <groupId>io.github.wuxin0011</groupId>
     <artifactId>java-lc-run</artifactId>
-    <version>0.0.3-beta</version>
+    <version>0.0.4-beta</version>
 </dependency>
 ```
 
